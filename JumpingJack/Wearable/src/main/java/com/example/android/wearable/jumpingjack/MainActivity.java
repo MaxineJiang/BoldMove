@@ -29,6 +29,7 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -37,12 +38,16 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.fragment.app.FragmentActivity;
@@ -119,6 +124,8 @@ public class MainActivity extends FragmentActivity
     private int block =0;
     private Integer[][] blocks_StudyOne;
     private List<List<Integer>> randomBlocks_StudyOne;
+    private int viewIndex=0;
+    private boolean isDeviceMenu=true;
 
     private ViewPager mPager;
     private FunctionOneFragment mCounterPage;
@@ -218,8 +225,81 @@ public class MainActivity extends FragmentActivity
 
         new NetworkAsyncTask().execute(ip);
 
-        setupstartview(block);
+        //setupstartview(block);
+        final List<function> functions = functionList(1, 1, functionOrder);
+        setUpMenuView(true,0,functions);
+    }
 
+    /**Study 2: baseline study - device and function scroll menu setup*/
+    private void setUpMenuView(boolean isDeviceMenu, int selectedDevice, final List<function> functions){
+        setContentView(R.layout.scroll_menu);
+        final LinearLayout scrollList=findViewById(R.id.scrollList);
+        //添加列表
+        for(int i=0;i<functions.size()-1;i++){
+            TextView textView=new TextView(this);
+            //如果是设备选择页，获取所有设备
+            if(isDeviceMenu)
+                textView.setText(functions.get(i).get_device()[0]);
+            //如果是功能选择页，获取该设备的所有功能
+            if(!isDeviceMenu){
+                if(functions.get(i).get_device()[0]==functions.get(selectedDevice).get_device()[0])
+                    textView.setText(functions.get(i).get_name());
+            }
+            if(i==0){
+                textView.setTextColor(Color.BLUE);
+            }
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP,25);
+            textView.setGravity(Gravity.CENTER);
+            scrollList.addView(textView);
+            textView.getLayoutParams().height = 100;
+            textView.getLayoutParams().width=250;
+        }
+
+    }
+
+    /**Study 2: baseline study - device and function scroll menu update*/
+    private void updateMenuView(int semantic, int pressed){
+        final ScrollView scrollView=findViewById(R.id.scrollView);
+        final LinearLayout scrollList=findViewById(R.id.scrollList);
+
+        if(pressed==1){
+            if(i==0){ i++;
+                switch (semantic){
+                    case 0: //向上滚动
+                        if(viewIndex>0){
+                            TextView previousDevice=(TextView)scrollList.getChildAt(viewIndex);
+                            previousDevice.setTextColor(Color.GRAY);
+                            viewIndex--;}
+                        break;
+                    case 1://向下滚动
+                        if(viewIndex<scrollList.getChildCount()-1){
+                            TextView previousDevice=(TextView)scrollList.getChildAt(viewIndex);
+                            previousDevice.setTextColor(Color.GRAY);
+                            viewIndex++;}
+                        break;
+                    case 2:
+                        if(isDeviceMenu){
+                            //如果当前页面是设备选择页，进入功能选择页
+                            final List<function> functions = functionList(semantic, 1, functionOrder);
+                            setUpMenuView(false,viewIndex,functions);
+                            isDeviceMenu=false;
+                        } else{
+                            //如果当前页面是功能选择页，进入结果显示页
+                            setupstartview(viewIndex);
+                            isDeviceMenu=true;
+                        }
+
+                        break;
+                }
+                scrollView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        TextView device= (TextView) scrollList.getChildAt(viewIndex);
+                        scrollView.smoothScrollTo(0,device.getTop()-150);
+                        device.setTextColor(Color.BLUE);
+                    }});
+
+            }}else i=0;
     }
 
     /**Register sensor listener*/
@@ -466,6 +546,7 @@ public class MainActivity extends FragmentActivity
             if (inputs[0] > -1 && inputs[1] > -1) {
                 Log.d("manudata",Integer.toString(inputs[0])+Integer.toString(inputs[1]));
                 setupfunctionview(trial, inputs[0], inputs[1], SLIDER_VALUE);
+                updateMenuView(inputs[0],inputs[1]);
             }
 //            try {
 //                ubiTouchStatus();

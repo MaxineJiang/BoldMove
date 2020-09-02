@@ -14,6 +14,8 @@ public class log_data {
     public int[]  func_id;
     public long[] timestamp_func_start;
     public String[] log;
+    /**Study 2*/
+    public long timestamp_device_selected;
 
     public log_data (){
         this.session = -1;
@@ -26,7 +28,8 @@ public class log_data {
         this.timestamp_selected = 0;
         this.timestamp_func_start = new long[5];
         this.func_id = new int[5];
-        this.log = new String[10];
+        this.log = new String[11];
+        this.timestamp_device_selected=0;
     }
 
     public log_data (int session, int block, int trial, int id, int target, int[] configure, long ts_pressed, long ts_selected, int[] func_id, long[] ts_func_start){
@@ -54,6 +57,7 @@ public class log_data {
         this.log[5] = "["+Integer.toString(this.configure[0])+","+ this.configure[1] +"]";
         this.log[6] = Long.toString(timestamp_pressed);
         this.log[7] = Long.toString(timestamp_selected);
+        this.log[10]=Long.toString(timestamp_device_selected);
 
         for(int func:this.func_id){
             id_func.add(Integer.toString(func));

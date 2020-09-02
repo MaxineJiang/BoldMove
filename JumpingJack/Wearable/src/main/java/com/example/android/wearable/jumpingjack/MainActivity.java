@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
@@ -31,22 +30,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Layout;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -57,7 +49,6 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.MutableLiveData;
 import androidx.viewpager.widget.ViewPager;
 import androidx.wear.ambient.AmbientModeSupport;
 import androidx.wear.widget.CircularProgressLayout;
@@ -73,24 +64,19 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import static java.lang.Math.abs;
-import static java.lang.Math.log;
 
 /**
  * The main activity for the Jumping Jack application. This activity registers itself to receive
@@ -129,12 +115,15 @@ public class MainActivity extends FragmentActivity
     private int session = 0;
     private int functionOrder=1;
     private int functionTime =1;
-    private int trial = 0;
+    private int task = 0;
     private int block =0;
     private Integer[][] blocks_StudyOne;
     private List<List<Integer>> randomBlocks_StudyOne;
     private int viewIndex=0;
     private boolean isDeviceMenu=true;
+    private boolean isFunctionMenu=false;
+    private int previousPressed=0;
+    private int selectedSemantic=0;
 
     private ViewPager mPager;
     private FunctionOneFragment mCounterPage;
@@ -216,11 +205,11 @@ public class MainActivity extends FragmentActivity
         AmbientModeSupport.attach(this);
         context = getApplicationContext();
 
-        blocks_StudyOne = new Integer[][]{{1, 0}, {1, 2}, {1, 4},{2,0},{2,2},{2,4},{3,0},{3,2},{3,4}};
-        randomBlocks_StudyOne = new ArrayList<>();
-        for (Integer[] ints : blocks_StudyOne) {
-            randomBlocks_StudyOne.add(Arrays.asList(ints));
-        }
+       // blocks_StudyOne = new Integer[][]{{1, 0}, {1, 2}, {1, 4},{2,0},{2,2},{2,4},{3,0},{3,2},{3,4}};
+        //randomBlocks_StudyOne = new ArrayList<>();
+        //for (Integer[] ints : blocks_StudyOne) {
+        //    randomBlocks_StudyOne.add(Arrays.asList(ints));
+        //}
 
         handler= new Handler();
         final BluetoothManager bluetoothManager =
@@ -287,7 +276,7 @@ public class MainActivity extends FragmentActivity
         if (block_num < 3) {
             block_textview.setText("Block" + block_num);
             try {
-                /**Study 2 scenario 1 functions*/
+                /**Study 2 functions*/
                 all_functions = assembly_functions(2, 0, block+1, 0);
 
             } catch (IOException | JSONException e) {
@@ -306,7 +295,7 @@ public class MainActivity extends FragmentActivity
             block = 0;
             session = session + 1;
             try {
-                /**Study 2 scenario 1 functions*/
+                /**Study 2 functions*/
                 all_functions = assembly_functions(2, 0, block+1, 0);
 
             } catch (IOException | JSONException e) {
@@ -340,20 +329,20 @@ public class MainActivity extends FragmentActivity
 //                    cnt -= 1;
 //                }
 
-                setupTrialview(block, trial);
+                setupTrialview(block, task);
             }
         });
 
-        Collections.shuffle(randomBlocks_StudyOne);
+        //Collections.shuffle(randomBlocks_StudyOne);
     }
 
-    private void setupTrialview(int block_num, int trial_num){
+    private void setupTrialview(int block_num, int task_num){
         setContentView(R.layout.block_layout);
         TextView block_textview = findViewById(R.id.block);
         TextView task_textview = findViewById(R.id.task);
         Button start_button=findViewById(R.id.button_start);
         String blocktext = "Block "+ block_num;
-        String tasktext = "Trial "+ trial_num;
+        String tasktext = "Task "+ task_num;
 
         block_textview.setText(blocktext);
         task_textview.setText(tasktext);
@@ -371,8 +360,8 @@ public class MainActivity extends FragmentActivity
                         new NetworkAsyncTask().execute(ip);
                     }
 
-                    setUpMenuView(true,0,all_functions);
-                    
+                    setUpMenuView(true,"",all_functions);
+                    log_trial.timestamp_pressed=System.currentTimeMillis();
                 }
             });
         }
@@ -385,8 +374,10 @@ public class MainActivity extends FragmentActivity
         Log.d("view", Integer.toString(layoutId));
     }
 
+
+
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void setupfunctionview(int trial_num, int semantic, int pressed, int slider_value) {
+    private void setupfunctionview(int task_num, int semantic, int pressed, int slider_value) {
         Log.e("display", Integer.toString(semantic));
         int view_func_select;
         int viewid;
@@ -425,33 +416,25 @@ public class MainActivity extends FragmentActivity
             setContentView(view_func_select);
 
             /**Study 2 fixed function time*/
-            //int functionOrder= randomBlocks_StudyOne.get(trial_num).get(1);
+            //int functionOrder= randomBlocks_StudyOne.get(task_num).get(1);
             int functionTime = 2;
 
            // log_trial.configure = new int[]{functionOrder, functionTime};
             int index = 0;
-//            //写入log文件，当前参数
-//            Log.d("currentSettings", functionOrder+" "+ functionTime +" "+ task +" "+session);
 
-            final List<function> functions = functionList(semantic, trial_num, 0);
+            final List<function> functions = functionList(semantic, task_num);
+            log_trial.func_id=new int[functions.size()];
             for (int j = 0; j < functions.size(); j++) {
                 log_trial.func_id[j] = functions.get(j).get_id();
             }
-            log_trial.funcid_target = log_trial.func_id[functionOrder];
+            //log_trial.funcid_target = log_trial.func_id[functionOrder];
 
             circularProgress = (CircularProgressLayout) findViewById(cp);
             Log.e("display", Integer.toString(circularProgress.getId()));
 
             circularProgress.setTotalTime(functionTime * 1000);
             stopfunction = false;
-            /**Study 2*/
-            //if (session == 1) {
-            //    try {
-            //        Thread.sleep(1000);
-            //    } catch (InterruptedException ex) {
-            //        Thread.currentThread().interrupt();
-            //    }
-            //}
+
             updatefunctionview(index, functions, circularProgress, semantic, funcid, deviceid);
 
         }
@@ -498,14 +481,6 @@ public class MainActivity extends FragmentActivity
                 slider.setEnabled(false);
             }
 
-
-//            TextView state = findViewById(stateid);
-//            state.setText(current_function.get_state()[temp_stateid]);
-            // make buttons visible
-//            Button redo = findViewById(R.id.redo);
-//            Button nextTrial = findViewById(R.id.nextTrial);
-//            redo.setVisibility(View.VISIBLE);
-//            nextTrial.setVisibility(View.VISIBLE);
             Log.d("display", Integer.toString(view_func_select));
             View func_view = findViewById(viewid);
             final int finalTemp_stateid = temp_stateid;
@@ -515,7 +490,7 @@ public class MainActivity extends FragmentActivity
                     device_states[functionid] = finalTemp_stateid;
                     log_trial.session = session;
                     log_trial.block = block;
-                    log_trial.trial = trial;
+                    log_trial.trial = task;
                     if (socket == null){
                         new NetworkAsyncTask().execute(ip);
                     }
@@ -525,15 +500,15 @@ public class MainActivity extends FragmentActivity
                     send(log_trial.assemby_send_string());
                     log_trial = new log_data();
 
-                    trial = trial + 1;
+                    task = task + 1;
                     /**Study 2 total trial number*/
-                    if (trial == all_functions.size()){
+                    if (task == all_functions.size()){
                         block = block + 1;
-                        trial = 0;
+                        task = 0;
                         setupstartview(block);
                     }
                     else{
-                        setupTrialview(block, trial);
+                        setupTrialview(block, task);
                     }
                 }
             });
@@ -542,45 +517,10 @@ public class MainActivity extends FragmentActivity
                 @Override
                 public boolean onLongClick(View v) {
                     log_trial = new log_data();
-                    setupTrialview(block, trial);
+                    setupTrialview(block, task);
                     return true;
                 }
             });
-
-//            redo.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    log_trial = new log_data();
-//                    setupTrialview(block, trial);
-//                }
-//            });
-
-//            nextTrial.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    log_trial.session = session;
-//                    log_trial.block = block;
-//                    log_trial.trial = trial;
-//                    if (socket == null){
-//                        new NetworkAsyncTask().execute(ip);
-//                    }
-//                    else{
-//                        Log.d("socket", String.valueOf(socket.isConnected()));
-//                    }
-//                    send(log_trial.assemby_send_string());
-//                    log_trial = new log_data();
-//
-//                    trial = trial + 1;
-//                    if (trial == randomBlocks_StudyOne.size()){
-//                        block = block + 1;
-//                        trial = 0;
-//                        setupstartview(block);
-//                    }
-//                    else{
-//                        setupTrialview(block, trial);
-//                    }
-//                }
-//            });
         }
 
         // for slider selection
@@ -610,10 +550,151 @@ public class MainActivity extends FragmentActivity
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void setupfunctionview_study2(int index,int semantic, int pressed, int slider_value) {
+        int view_func_select;
+        int viewid;
+        int deviceid;
+        int funcid;
+        switch (semantic) {
+            case 2:
+                view_func_select = R.layout.toggle_func_select;
+                viewid = R.id.toggle_func_select;
+                deviceid = R.id.device2;
+                funcid = R.id.function2;
+                break;
+
+            case 3:
+                view_func_select = R.layout.slider_func_select;
+                viewid = R.id.slider_func_select;
+                deviceid = R.id.device3;
+                funcid = R.id.function3;
+                break;
+
+            default:
+                view_func_select = R.layout.pn_func_select;
+                viewid = R.id.pn_func_select;
+                deviceid = R.id.device1;
+                funcid = R.id.function1;
+        }
+
+
+        if (pressed == -1) {
+            setContentView(view_func_select);
+            updatefunctionview_study2(index, all_functions, semantic, funcid, deviceid);
+        }
+
+        if (pressed == 0){
+            final int functionid = current_function.get_id();
+            int temp_stateid = device_states[functionid];
+            if(selectedSemantic==0){
+            if (semantic == 0){
+                temp_stateid -= 1;
+                if (temp_stateid < 0){
+                    temp_stateid = current_function.get_state().length - 1;
+                }
+            }
+
+            if (semantic == 1){
+                temp_stateid += 1;
+                if (temp_stateid > current_function.get_state().length - 1){
+                    temp_stateid = 0;
+                }
+            }}
+
+            // update displayed state
+            if (semantic == 2 && selectedSemantic==2){
+                Switch toggle = findViewById(R.id.switch2);
+                toggle.setChecked(temp_stateid == 0);
+                TextView state_text = findViewById(R.id.state_text2);
+                state_text.setText(current_function.get_state()[temp_stateid]);
+            }
+
+            if ((semantic == 0 || semantic == 1)&&selectedSemantic==0 ){
+                TextView state_text = findViewById(R.id.state_text1);
+                state_text.setText(current_function.get_state()[temp_stateid]);
+            }
+
+            if (semantic == 3 && selectedSemantic==3){
+                SeekBar slider = findViewById(R.id.seekBar3);
+                slider.setEnabled(false);
+            }
+
+            Log.d("display", Integer.toString(view_func_select));
+            View func_view = findViewById(viewid);
+            if(func_view!=null){
+            final int finalTemp_stateid = temp_stateid;
+            func_view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    isFunctionMenu=false;
+                    device_states[functionid] = finalTemp_stateid;
+                    log_trial.session = session;
+                    log_trial.block = block;
+                    log_trial.trial = task;
+                    if (socket == null){
+                        new NetworkAsyncTask().execute(ip);
+                    }
+                    else{
+                        Log.d("socket", String.valueOf(socket.isConnected()));
+                    }
+                    send(log_trial.assemby_send_string());
+                    log_trial = new log_data();
+
+                    task = task + 1;
+                    /**Study 2 total trial number*/
+                    if (task == all_functions.size()){
+                        block = block + 1;
+                        task = 0;
+                        setupstartview(block);
+                    }
+                    else{
+                        setupTrialview(block, task);
+                    }
+                }
+            });
+
+            func_view.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    log_trial = new log_data();
+                    setupTrialview(block, task);
+                    return true;
+                }
+            });}
+        }
+
+
+        // for slider selection
+        if (pressed == 2 && layoutId == view_func_select && selectedSemantic==3){
+            SeekBar slider = findViewById(R.id.seekBar3);
+            if (slider.isEnabled()) {
+                log_trial.timestamp_selected = System.currentTimeMillis();
+                stopfunction = true;
+                // make buttons visible
+                TextView svalue = findViewById(R.id.state3_text);
+                String[] scale = current_function.get_state();
+
+                int min = Integer.parseInt(scale[0], 10);
+                int max = Integer.parseInt(scale[scale.length - 1], 10);
+                int scaled_value = min + (max - min) * (SLIDER_VALUE) / 15;
+
+                device_states[current_function.get_id()] = scaled_value - min;
+                //Log.d("scale", scale[0]+"-"+scale[scale.length-1]+"-"+min+"-"+max+"-"+scaled_value);
+                svalue.setText(Integer.toString(scaled_value));
+
+                slider.setMax(max);
+                slider.setMin(min);
+                slider.setProgress(scaled_value);
+            }
+        }
+    }
+
     private void  updatefunctionview(final int index, final List<function> functions, CircularProgressLayout layout, final int sem, final int funcid, final int deviceid){
         if (!stopfunction) {
             current_function = functions.get(index);
             layout.stopTimer();
+            Log.d("functionlist",functions.get(index).get_device()[0]);
 
             int current_state = device_states[current_function.get_id()];
             String image_src;
@@ -628,12 +709,113 @@ public class MainActivity extends FragmentActivity
             Log.d("funcupdate",image_src);
 
             ImageView image = findViewById(funcid);
+            if(image!=null){
             int drawableId = context.getResources().getIdentifier(image_src, "drawable", context.getPackageName());
-            image.setImageResource(drawableId);
+            image.setImageResource(drawableId);}
 
 //            if (functions.get(index).get_imageid() != null) {
 //                func_image.setImageResource(functions.get(index).get_imageid());
 //            }
+            TextView device = findViewById(deviceid);
+            if(device!=null)
+                device.setText(Arrays.toString(functions.get(index).get_device()).replace("[", " ").replace("]", " "));
+
+            if (sem == 0) {
+                ImageView limage  = findViewById(R.id.semanticl);
+                String limage_src = "previous_l";
+                limage.setImageResource(context.getResources().getIdentifier(limage_src, "drawable", context.getPackageName()));
+                ImageView rimage = findViewById(R.id.semanticr);
+                String rimage_src = "previous_r";
+                rimage.setImageResource(context.getResources().getIdentifier(rimage_src, "drawable", context.getPackageName()));
+                TextView state_text = findViewById(R.id.state_text1);
+                Log.d("current_state", String.valueOf(current_state));
+                state_text.setText(current_function.get_state()[current_state]);
+            }
+
+            if (sem == 1) {
+                ImageView limage  = findViewById(R.id.semanticl);
+                String limage_src = "next_l";
+                if(limage!=null)
+                    limage.setImageResource(context.getResources().getIdentifier(limage_src, "drawable", context.getPackageName()));
+                ImageView rimage = findViewById(R.id.semanticr);
+                String rimage_src = "next_r";
+                if(rimage!=null)
+                    rimage.setImageResource(context.getResources().getIdentifier(rimage_src, "drawable", context.getPackageName()));
+                TextView state_text = findViewById(R.id.state_text1);
+                if(state_text!=null)
+                    state_text.setText(current_function.get_state()[current_state]);
+            }
+
+            if (sem == 2) {
+                Switch toggle = findViewById(R.id.switch2);
+                if(toggle!=null){
+                toggle.setChecked(current_state == 0);
+                toggle.jumpDrawablesToCurrentState();}
+                TextView state_text = findViewById(R.id.state_text2);
+                if(state_text!=null)
+                state_text.setText(current_function.get_state()[current_state]);
+            }
+
+            if (sem == 3) {
+                SeekBar slider = findViewById(R.id.seekBar3);
+                //slider.setEnabled(false);
+                String[] scale = current_function.get_state();
+                int min  = Integer.parseInt(scale[0], 10);
+                int max = Integer.parseInt(scale[scale.length-1], 10);
+                //int scaled_value = min + (max-min) * (SLIDER_VALUE)/ 15;
+                if(slider!=null){
+                slider.setMax(max);
+                slider.setMin(min);
+                slider.setProgress(Integer.parseInt(scale[current_state]));}
+
+                TextView slider_value = findViewById(R.id.state3_text);
+                slider_value.setText(scale[current_state]);
+
+            }
+
+
+//            TextView state = findViewById(stateid);
+//            state.setText(current_function.get_state()[current_state]);
+
+            //final ImageView finalImage = func_image;
+            layout.setOnTimerFinishedListener(new CircularProgressLayout.OnTimerFinishedListener() {
+                @Override
+                public void onTimerFinished(CircularProgressLayout layout) {
+                    if (index == functions.size() - 1) {
+                        updatefunctionview(0, functions, layout, sem, funcid, deviceid);
+                    } else {
+                        updatefunctionview(index + 1, functions, layout, sem, funcid, deviceid);
+                    }
+                }
+            });
+            layout.startTimer();
+            log_trial.timestamp_func_start[index] = System.currentTimeMillis();
+        }
+        else{
+            layout.stopTimer();
+        }
+    };
+
+    private void  updatefunctionview_study2(final int index, final List<function> functions, final int sem, final int funcid, final int deviceid){
+            current_function = functions.get(index);
+
+            int current_state = device_states[current_function.get_id()];
+            String image_src;
+            if(sem == 2) {
+                image_src = functions.get(index).get_name() + "_" + current_state;
+            }
+            else{
+                image_src = functions.get(index).get_name();
+
+            }
+            Log.d("funcupdate", Integer.toString(index));
+            Log.d("funcupdate", Integer.toString(sem));
+            Log.d("funcupdate",image_src);
+
+            ImageView image = findViewById(funcid);
+            int drawableId = context.getResources().getIdentifier(image_src, "drawable", context.getPackageName());
+            image.setImageResource(drawableId);
+
             TextView device = findViewById(deviceid);
             device.setText(Arrays.toString(functions.get(index).get_device()).replace("[", " ").replace("]", " "));
 
@@ -683,32 +865,10 @@ public class MainActivity extends FragmentActivity
 
             }
 
-
-//            TextView state = findViewById(stateid);
-//            state.setText(current_function.get_state()[current_state]);
-
-            //final ImageView finalImage = func_image;
-            layout.setOnTimerFinishedListener(new CircularProgressLayout.OnTimerFinishedListener() {
-                @Override
-                public void onTimerFinished(CircularProgressLayout layout) {
-                    if (index == functions.size() - 1) {
-                        updatefunctionview(0, functions, layout, sem, funcid, deviceid);
-                    } else {
-                        updatefunctionview(index + 1, functions, layout, sem, funcid, deviceid);
-                    }
-                }
-            });
-            layout.startTimer();
-            log_trial.timestamp_func_start[index] = System.currentTimeMillis();
-        }
-        else{
-            layout.stopTimer();
-        }
     };
 
-
     /**Study 2: baseline study - device and function scroll menu setup*/
-    private void setUpMenuView(boolean isDeviceMenu, int selectedDevice, final List<function> functions){
+    private void setUpMenuView(boolean isDeviceMenu, String selectedDevice, final List<function> functions){
         setContentView(R.layout.scroll_menu);
         final LinearLayout scrollList=findViewById(R.id.scrollList);
         //添加列表
@@ -716,25 +876,22 @@ public class MainActivity extends FragmentActivity
             TextView textView;
             //如果是设备选择页，获取所有设备
             if(isDeviceMenu){
+                if(i==0||(i>0&&!functions.get(i).get_device()[0].equals(functions.get(i-1).get_device()[0]))){
                 textView=new TextView(this);
                 textView.setText(functions.get(i).get_device()[0]);
-                if(i==0){
-                    textView.setTextColor(Color.BLUE);
-                }
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP,25);
                 textView.setGravity(Gravity.CENTER);
                 scrollList.addView(textView);
                 textView.getLayoutParams().height = 100;
                 textView.getLayoutParams().width=250;
+                }
             }
             //如果是功能选择页，获取该设备的所有功能
             if(!isDeviceMenu){
-                if(functions.get(i).get_device()[0]==functions.get(selectedDevice).get_device()[0]){
+                if(functions.get(i).get_device()[0].equals(selectedDevice)){
                     textView=new TextView(this);
+                    textView.setId(functions.get(i).get_id());
                     textView.setText(functions.get(i).get_name());
-                    if(i==0){
-                        textView.setTextColor(Color.BLUE);
-                    }
                     textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP,25);
                     textView.setGravity(Gravity.CENTER);
                     scrollList.addView(textView);
@@ -748,14 +905,13 @@ public class MainActivity extends FragmentActivity
     }
 
     /**Study 2: baseline study - device and function scroll menu update*/
-    private void updateMenuView(int semantic, int pressed){
+    private void updateMenuView(int semantic, int pressed, int SLIDER_VALUE){
         final ScrollView scrollView=findViewById(R.id.scrollView);
         final LinearLayout scrollList=findViewById(R.id.scrollList);
          if(scrollList==null||scrollView==null)
              return;
 
-        if(pressed==1){
-            if(i==0){ i++;
+        if(pressed==0&&previousPressed==1){
                 switch (semantic){
                     case 0: //向上滚动
                         if(viewIndex>0){
@@ -772,33 +928,17 @@ public class MainActivity extends FragmentActivity
                     case 2:
                         if(isDeviceMenu){
                             //如果当前页面是设备选择页，进入功能选择页
-                            setUpMenuView(false,viewIndex,all_functions);
+                            log_trial.timestamp_device_selected=System.currentTimeMillis();
+                            TextView selectedDevice=(TextView)scrollList.getChildAt(viewIndex);
+                            setUpMenuView(false, (String) selectedDevice.getText(),all_functions);
                             isDeviceMenu=false;
                             viewIndex=0;
                         } else{
                             //如果当前页面是功能选择页，返回首页
-                            log_trial.session = session;
-                            log_trial.block = block;
-                            log_trial.trial = trial;
-                            if (socket == null){
-                                new NetworkAsyncTask().execute(ip);
-                            }
-                            else{
-                                Log.d("socket", String.valueOf(socket.isConnected()));
-                            }
-                            send(log_trial.assemby_send_string());
-                            log_trial = new log_data();
-
-                            trial = trial + 1;
-                            /**Study 2 total trial number*/
-                            if (trial == all_functions.size()){
-                                block = block + 1;
-                                trial = 0;
-                                setupstartview(block);
-                            }
-                            else{
-                                setupTrialview(block, trial);
-                            }
+                            TextView selectedFunction=(TextView)scrollList.getChildAt(viewIndex);
+                            selectedSemantic=all_functions.get(selectedFunction.getId()).get_semantic()[0];
+                            setupfunctionview_study2(selectedFunction.getId(),selectedSemantic,-1,SLIDER_VALUE);
+                            isFunctionMenu=true;
                             isDeviceMenu=true;
                             viewIndex=0;
                         }
@@ -813,7 +953,8 @@ public class MainActivity extends FragmentActivity
                         device.setTextColor(Color.BLUE);
                     }});
 
-            }}else i=0;
+            }
+        previousPressed=pressed;
     }
 
     ScanCallback scanCallback = new ScanCallback() {
@@ -838,10 +979,14 @@ public class MainActivity extends FragmentActivity
             if (inputs[0] > -1 && inputs[1] > -1) {
                 Log.d("manudata",Integer.toString(inputs[0])+Integer.toString(inputs[1]));
                 if(session==0)
-                    setupfunctionview(trial, inputs[0], inputs[1], SLIDER_VALUE);
+                    setupfunctionview(task, inputs[0], inputs[1], SLIDER_VALUE);
                 /**Study 2 Session 2*/
-                else
-                    updateMenuView(inputs[0],inputs[1]);
+                else{
+                    if(isFunctionMenu==false)
+                        updateMenuView(inputs[0],inputs[1],SLIDER_VALUE);
+                    else
+                        setupfunctionview_study2(0,inputs[0],inputs[1],SLIDER_VALUE);
+                }
 
             }
 //            try {
@@ -988,23 +1133,17 @@ public class MainActivity extends FragmentActivity
 
 
     /**Predefined function list*/
-    private List<function> functionList(int semantic,int block, int functionOrder){
+    private List<function> functionList(int semantic,int block){
         List<function> semantic_functions = extract_semantic_functions(all_functions, semantic);
         Collections.shuffle(semantic_functions);
-        function target_function = new function();
+       /* function target_function = new function();
         for (function item:semantic_functions) {
             if (item.get_id() < 4){
                 target_function = item;
                 semantic_functions.remove(item);
                 break;
             }
-        }
-        Random r=new Random();
-        if(semantic_functions.size()==0)
-            functionOrder=0;
-        else
-            functionOrder=r.nextInt(semantic_functions.size()-1);
-        semantic_functions.add(functionOrder, target_function);
+        }*/
         return semantic_functions;
     }
 

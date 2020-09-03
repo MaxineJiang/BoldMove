@@ -484,43 +484,58 @@ public class MainActivity extends FragmentActivity
             Log.d("display", Integer.toString(view_func_select));
             View func_view = findViewById(viewid);
             final int finalTemp_stateid = temp_stateid;
-            func_view.setOnClickListener(new View.OnClickListener() {
+            scrollTimer = new Timer();
+
+            /**Timer: page scroll every 2s*/
+            scrollTask = new TimerTask() {
                 @Override
-                public void onClick(View v) {
-                    device_states[functionid] = finalTemp_stateid;
-                    log_trial.session = session;
-                    log_trial.block = block;
-                    log_trial.trial = task;
-                    if (socket == null){
-                        new NetworkAsyncTask().execute(ip);
-                    }
-                    else{
-                        Log.d("socket", String.valueOf(socket.isConnected()));
-                    }
-                    send(log_trial.assemby_send_string());
-                    log_trial = new log_data();
+                public void run() {
+                    // TODO Auto-generated method stub
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            device_states[functionid] = finalTemp_stateid;
+                            log_trial.session = session;
+                            log_trial.block = block;
+                            log_trial.trial = task;
+                            if (socket == null){
+                                new NetworkAsyncTask().execute(ip);
+                            }
+                            else{
+                                Log.d("socket", String.valueOf(socket.isConnected()));
+                            }
+                            send(log_trial.assemby_send_string());
+                            log_trial = new log_data();
 
-                    task = task + 1;
-                    /**Study 2 total trial number*/
-                    if (task == all_functions.size()){
-                        block = block + 1;
-                        task = 0;
-                        setupstartview(block);
-                    }
-                    else{
-                        setupTrialview(block, task);
-                    }
-                }
-            });
+                            task = task + 1;
+                            /**Study 2 total trial number*/
+                            if (task == all_functions.size()){
+                                block = block + 1;
+                                task = 0;
+                                setupstartview(block);
+                            }
+                            else{
+                                setupTrialview(block, task);
+                            }
+                        }});}
+            };
 
-            func_view.setOnLongClickListener(new View.OnLongClickListener() {
+            scrollTimer.schedule(scrollTask, 1000);//every 2 seconds
+            //func_view.setOnClickListener(new View.OnClickListener() {
+               // @Override
+                //public void onClick(View v) {
+
+             //   }
+            //});
+
+           /* func_view.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     log_trial = new log_data();
                     setupTrialview(block, task);
                     return true;
                 }
-            });
+            });*/
         }
 
         // for slider selection
@@ -624,44 +639,61 @@ public class MainActivity extends FragmentActivity
             View func_view = findViewById(viewid);
             if(func_view!=null){
             final int finalTemp_stateid = temp_stateid;
-            func_view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    isFunctionMenu=false;
-                    device_states[functionid] = finalTemp_stateid;
-                    log_trial.session = session;
-                    log_trial.block = block;
-                    log_trial.trial = task;
-                    if (socket == null){
-                        new NetworkAsyncTask().execute(ip);
-                    }
-                    else{
-                        Log.d("socket", String.valueOf(socket.isConnected()));
-                    }
-                    send(log_trial.assemby_send_string());
-                    log_trial = new log_data();
+                scrollTimer = new Timer();
 
-                    task = task + 1;
-                    /**Study 2 total trial number*/
-                    if (task == all_functions.size()){
-                        block = block + 1;
-                        task = 0;
-                        setupstartview(block);
-                    }
-                    else{
-                        setupTrialview(block, task);
-                    }
-                }
-            });
+                /**Timer: page scroll every 2s*/
+                scrollTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        // TODO Auto-generated method stub
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                isFunctionMenu=false;
+                                device_states[functionid] = finalTemp_stateid;
+                                log_trial.session = session;
+                                log_trial.block = block;
+                                log_trial.trial = task;
+                                if (socket == null){
+                                    new NetworkAsyncTask().execute(ip);
+                                }
+                                else{
+                                    Log.d("socket", String.valueOf(socket.isConnected()));
+                                }
+                                send(log_trial.assemby_send_string());
+                                log_trial = new log_data();
 
-            func_view.setOnLongClickListener(new View.OnLongClickListener() {
+                                task = task + 1;
+                                /**Study 2 total trial number*/
+                                if (task == all_functions.size()){
+                                    block = block + 1;
+                                    task = 0;
+                                    setupstartview(block);
+                                }
+                                else{
+                                    setupTrialview(block, task);
+                                }
+                            }});}
+                };
+
+                scrollTimer.schedule(scrollTask, 1000);//every 2 seconds
+           // func_view.setOnClickListener(new View.OnClickListener() {
+              //  @Override
+               // public void onClick(View v) {
+
+
+             //   }
+          //  });
+
+           /* func_view.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     log_trial = new log_data();
                     setupTrialview(block, task);
                     return true;
                 }
-            });}
+            });*/
+            }
         }
 
 
@@ -870,9 +902,10 @@ public class MainActivity extends FragmentActivity
     /**Study 2: baseline study - device and function scroll menu setup*/
     private void setUpMenuView(boolean isDeviceMenu, String selectedDevice, final List<function> functions){
         setContentView(R.layout.scroll_menu);
+        final ScrollView scrollView=findViewById(R.id.scrollView);
         final LinearLayout scrollList=findViewById(R.id.scrollList);
         //添加列表
-        for(int i=0;i<functions.size()-1;i++){
+        for(int i=0;i<functions.size();i++){
             TextView textView;
             //如果是设备选择页，获取所有设备
             if(isDeviceMenu){
@@ -901,7 +934,8 @@ public class MainActivity extends FragmentActivity
             }
 
         }
-
+        TextView device= (TextView) scrollList.getChildAt(0);
+        device.setTextColor(Color.BLUE);
     }
 
     /**Study 2: baseline study - device and function scroll menu update*/

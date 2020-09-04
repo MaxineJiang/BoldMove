@@ -113,10 +113,13 @@ public class MainActivity extends FragmentActivity
     private float roll;
     private int i=0;
     private int session = 0;
+    private int previous_session=0;
     private int functionOrder=1;
     private int functionTime =1;
     private int task = 0;
+    private int previous_task=0;
     private int block =0;
+    private int previous_block=0;
     private Integer[][] blocks_StudyOne;
     private List<List<Integer>> randomBlocks_StudyOne;
     private int viewIndex=0;
@@ -184,6 +187,7 @@ public class MainActivity extends FragmentActivity
     private function current_function;
     private boolean stopfunction = false;
     List<function> all_functions = new ArrayList<>();
+    List<function> all_tasks=new ArrayList<>();
     int[] device_states;
 
     // wifi
@@ -271,13 +275,15 @@ public class MainActivity extends FragmentActivity
         TextView block_textview = findViewById(R.id.block_num);
         TextView session_textview = findViewById(R.id.session_num);
 
+
         // display block number
         /**Study 2 has 3 blocks*/
         if (block_num < 3) {
             block_textview.setText("Block" + block_num);
             try {
                 /**Study 2 functions*/
-                all_functions = assembly_functions(2, 0, block+1, 0);
+                all_functions = assembly_functions("functions_study.json",2, 0, block+1, 0);
+                all_tasks=assembly_functions("task_list.json",2, 0, block+1, 0);
 
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
@@ -293,10 +299,12 @@ public class MainActivity extends FragmentActivity
         else{
             block_textview.setText("Session "+session+"Finished!");
             block = 0;
+            previous_session=session;
             session = session + 1;
             try {
                 /**Study 2 functions*/
-                all_functions = assembly_functions(2, 0, block+1, 0);
+                all_functions = assembly_functions("functions_study.json",2, 0, block+1, 0);
+                all_tasks=assembly_functions("task_list.json",2, 0, block+1, 0);
 
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
@@ -334,18 +342,38 @@ public class MainActivity extends FragmentActivity
         });
 
         //Collections.shuffle(randomBlocks_StudyOne);
+        View func_view = findViewById(R.id.block_view);
+        func_view.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                log_trial = new log_data();
+                task=previous_task;
+                block=previous_block;
+                session=previous_session;
+                try {
+                    all_functions = assembly_functions("functions_study.json",2, 0, block+1, 0);
+                    all_tasks=assembly_functions("task_list.json",2, 0, block+1, 0);
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
+                setupTrialview(block,task);
+                return true;
+            }
+        });
     }
 
     private void setupTrialview(int block_num, int task_num){
         setContentView(R.layout.block_layout);
         TextView block_textview = findViewById(R.id.block);
         TextView task_textview = findViewById(R.id.task);
+        TextView task_name_textview=findViewById(R.id.task_name);
         Button start_button=findViewById(R.id.button_start);
         String blocktext = "Block "+ block_num;
         String tasktext = "Task "+ task_num;
 
         block_textview.setText(blocktext);
         task_textview.setText(tasktext);
+        task_name_textview.setText(all_tasks.get(task).get_device()[0]+" "+all_tasks.get(task).get_name());
 
         /**Study 2*/
         if(session==0)
@@ -372,6 +400,25 @@ public class MainActivity extends FragmentActivity
         }
 
         Log.d("view", Integer.toString(layoutId));
+
+        View func_view = findViewById(R.id.task_view);
+        func_view.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                log_trial = new log_data();
+                task=previous_task;
+                block=previous_block;
+                session=previous_session;
+                try {
+                    all_functions = assembly_functions("functions_study.json",2, 0, block+1, 0);
+                    all_tasks=assembly_functions("task_list.json",2, 0, block+1, 0);
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
+                setupTrialview(block,task);
+                return true;
+            }
+        });
     }
 
 
@@ -380,14 +427,14 @@ public class MainActivity extends FragmentActivity
     private void setupfunctionview(int task_num, int semantic, int pressed, int slider_value) {
         Log.e("display", Integer.toString(semantic));
         int view_func_select;
-        int viewid;
+        //int viewid;
         int cp;
         int deviceid;
         int funcid;
         switch (semantic) {
             case 2:
                 view_func_select = R.layout.toggle_func_select;
-                viewid = R.id.toggle_func_select;
+                //viewid = R.id.toggle_func_select;
                 cp = R.id.circular_progress2;
                 deviceid = R.id.device2;
                 funcid = R.id.function2;
@@ -395,7 +442,7 @@ public class MainActivity extends FragmentActivity
 
             case 3:
                 view_func_select = R.layout.slider_func_select;
-                viewid = R.id.slider_func_select;
+                //viewid = R.id.slider_func_select;
                 cp = R.id.circular_progress3;
                 deviceid = R.id.device3;
                 funcid = R.id.function3;
@@ -403,7 +450,7 @@ public class MainActivity extends FragmentActivity
 
             default:
                 view_func_select = R.layout.pn_func_select;
-                viewid = R.id.pn_func_select;
+                //viewid = R.id.pn_func_select;
                 cp = R.id.circular_progress1;
                 deviceid = R.id.device1;
                 funcid = R.id.function1;
@@ -482,7 +529,7 @@ public class MainActivity extends FragmentActivity
             }
 
             Log.d("display", Integer.toString(view_func_select));
-            View func_view = findViewById(viewid);
+
             final int finalTemp_stateid = temp_stateid;
             scrollTimer = new Timer();
 
@@ -507,9 +554,12 @@ public class MainActivity extends FragmentActivity
                             send(log_trial.assemby_send_string());
                             log_trial = new log_data();
 
+                            previous_task=task;
+                            previous_block=block;
+
                             task = task + 1;
                             /**Study 2 total trial number*/
-                            if (task == all_functions.size()){
+                            if (task == all_tasks.size()){
                                 block = block + 1;
                                 task = 0;
                                 setupstartview(block);
@@ -520,7 +570,7 @@ public class MainActivity extends FragmentActivity
                         }});}
             };
 
-            scrollTimer.schedule(scrollTask, 1000);//every 2 seconds
+            scrollTimer.schedule(scrollTask, 2000);//every 2 seconds
             //func_view.setOnClickListener(new View.OnClickListener() {
                // @Override
                 //public void onClick(View v) {
@@ -663,9 +713,12 @@ public class MainActivity extends FragmentActivity
                                 send(log_trial.assemby_send_string());
                                 log_trial = new log_data();
 
+                                previous_task=task;
+                                previous_block=block;
+                                previous_session=session;
                                 task = task + 1;
                                 /**Study 2 total trial number*/
-                                if (task == all_functions.size()){
+                                if (task == all_tasks.size()){
                                     block = block + 1;
                                     task = 0;
                                     setupstartview(block);
@@ -676,7 +729,7 @@ public class MainActivity extends FragmentActivity
                             }});}
                 };
 
-                scrollTimer.schedule(scrollTask, 1000);//every 2 seconds
+                scrollTimer.schedule(scrollTask, 2000);//every 2 seconds
            // func_view.setOnClickListener(new View.OnClickListener() {
               //  @Override
                // public void onClick(View v) {
@@ -1133,8 +1186,8 @@ public class MainActivity extends FragmentActivity
 
 
     /**Redefined function list*/
-    private List<function> assembly_functions(int study, int session, int block, int semantic) throws IOException, JSONException {
-        InputStream jsonStream = getAssets().open("functions_study.json");
+    private List<function> assembly_functions(String jason_file,int study, int session, int block, int semantic) throws IOException, JSONException {
+        InputStream jsonStream = getAssets().open(jason_file);//"functions_study.json"
         JSONObject jsonObject = new JSONObject(Utils.convertStreamToString(jsonStream));
         JSONArray json_scenarios = new JSONArray();
         if (study == 1) {

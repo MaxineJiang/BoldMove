@@ -29,7 +29,7 @@
         {"id":"8", "function": "volume", "device": ["Speaker"], "semantic": ["adjust"], "state": ["0-30"], "image": " "}
     ],
     "functions_study2_scenario2":[
-        {"id":"0", "function": "wake", "device": ["Laptop"], "semantic": ["toggle"], "state": ["WAKE", "SLEEP"], "image": "wake"},
+        {"id":"0", "function": "power", "device": ["Laptop"], "semantic": ["toggle"], "state": ["WAKE", "SLEEP"], "image": "wake"},
         {"id":"1", "function": "mute", "device": ["Laptop"], "semantic": ["toggle"], "state": ["MUTED", "UNMUTED"], "image": "mute"},
         {"id":"2", "function": "page", "device": ["Laptop"], "semantic": ["previous","next"], "state": ["1-20"], "image": " "},
         {"id":"3", "function": "volume", "device": ["Laptop"], "semantic": ["adjust"], "state": ["0-30"], "image": " "},

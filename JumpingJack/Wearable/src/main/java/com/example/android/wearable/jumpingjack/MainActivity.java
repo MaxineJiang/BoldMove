@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -63,6 +64,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,11 +124,19 @@ public class MainActivity extends FragmentActivity
     private int previous_block=0;
     private Integer[][] blocks_StudyOne;
     private List<List<Integer>> randomBlocks_StudyOne;
+    private List<Integer> random_block;
+    private String[] block_name;
     private int viewIndex=0;
     private boolean isDeviceMenu=true;
     private boolean isFunctionMenu=false;
+    private boolean isTrialView=false;
     private int previousPressed=0;
     private int selectedSemantic=0;
+    private int[] target_function_senario1;
+    private int[] target_function_senario2;
+    private int[] target_function_senario3;
+    MediaPlayer wrong_sound_player;
+    MediaPlayer correct_sound_player;
 
     private ViewPager mPager;
     private FunctionOneFragment mCounterPage;
@@ -209,11 +219,24 @@ public class MainActivity extends FragmentActivity
         AmbientModeSupport.attach(this);
         context = getApplicationContext();
 
-       // blocks_StudyOne = new Integer[][]{{1, 0}, {1, 2}, {1, 4},{2,0},{2,2},{2,4},{3,0},{3,2},{3,4}};
+        //blocks_StudyOne = new Integer[][]{{1, 0}, {1, 2}, {1, 4},{2,0},{2,2},{2,4},{3,0},{3,2},{3,4}};
         //randomBlocks_StudyOne = new ArrayList<>();
         //for (Integer[] ints : blocks_StudyOne) {
         //    randomBlocks_StudyOne.add(Arrays.asList(ints));
         //}
+
+        Integer[] blocks=new Integer[]{1,2,3};
+        block_name=new String[]{"Meeting room","Living home","Smart home"};
+        random_block=new ArrayList<Integer>();
+        random_block= Arrays.asList(blocks);
+        Collections.shuffle(random_block);
+
+        target_function_senario1=new int[]{8,9,7,3,2,2,1,6};
+        target_function_senario2=new int[]{1,0,3,5,6,7,8,3};
+        target_function_senario3=new int[]{0,2,9,7,4,5,1,4};
+
+        correct_sound_player = MediaPlayer.create(context, R.raw.correct);
+        wrong_sound_player = MediaPlayer.create(context, R.raw.wrong);
 
         handler= new Handler();
         final BluetoothManager bluetoothManager =
@@ -247,7 +270,8 @@ public class MainActivity extends FragmentActivity
                            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)//
                            .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)//
                            .build();
-//            ScanFilter namefilter = new ScanFilter.Builder().setManufacturerData(0x0059, new byte[]{0x00, 0x59}, new byte[]{(byte) 0xFF, (byte) 0xFF}).build();
+
+            //ScanFilter namefilter = new ScanFilter.Builder().setManufacturerData(0x0059, new byte[]{0x00, 0x00, 0x00, 0x00}, new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}).build();
             ScanFilter namefilter = new ScanFilter.Builder().setDeviceName("BoldMove").build();
 
             filters.add(namefilter);
@@ -271,19 +295,21 @@ public class MainActivity extends FragmentActivity
     }
 
     private void setupstartview(int block_num) {
+        isTrialView=false;
         setContentView(R.layout.session_start);
         TextView block_textview = findViewById(R.id.block_num);
         TextView session_textview = findViewById(R.id.session_num);
-
+        TextView block_name_textview=findViewById(R.id.block_name);
 
         // display block number
         /**Study 2 has 3 blocks*/
         if (block_num < 3) {
             block_textview.setText("Block" + block_num);
+            block_name_textview.setText(block_name[random_block.get(block_num)-1]);
             try {
                 /**Study 2 functions*/
-                all_functions = assembly_functions("functions_study.json",2, 0, block+1, 0);
-                all_tasks=assembly_functions("task_list.json",2, 0, block+1, 0);
+                all_functions = assembly_functions("functions_study.json",2, 0, random_block.get(block), 0);
+                all_tasks=assembly_functions("task_list.json",2, 0, random_block.get(block), 0);
 
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
@@ -293,21 +319,28 @@ public class MainActivity extends FragmentActivity
             // reinitialize states of all devices
             for (function f:all_functions
             ) {
-                device_states[f.get_id()] = 1;
+                device_states[f.get_id()] = f.get_initstateid();
             }
         }
         else{
             block_textview.setText("Session "+session+"Finished!");
             block = 0;
+            block_name_textview.setText(block_name[random_block.get(block)-1]);
             previous_session=session;
             session = session + 1;
             try {
                 /**Study 2 functions*/
-                all_functions = assembly_functions("functions_study.json",2, 0, block+1, 0);
-                all_tasks=assembly_functions("task_list.json",2, 0, block+1, 0);
+                all_functions = assembly_functions("functions_study.json",2, 0, random_block.get(block), 0);
+                all_tasks=assembly_functions("task_list.json",2, 0, random_block.get(block), 0);
 
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
+            }
+            device_states = new int[all_functions.size()];
+            // reinitialize states of all devices
+            for (function f:all_functions
+            ) {
+                device_states[f.get_id()] = f.get_initstateid();
             }
         }
         // display session number
@@ -337,7 +370,7 @@ public class MainActivity extends FragmentActivity
 //                    cnt -= 1;
 //                }
 
-                setupTrialview(block, task);
+                setupTrialview(block, task,-1,-1);
             }
         });
 
@@ -351,18 +384,20 @@ public class MainActivity extends FragmentActivity
                 block=previous_block;
                 session=previous_session;
                 try {
-                    all_functions = assembly_functions("functions_study.json",2, 0, block+1, 0);
-                    all_tasks=assembly_functions("task_list.json",2, 0, block+1, 0);
+                    all_functions = assembly_functions("functions_study.json",2, 0, random_block.get(block), 0);
+                    all_tasks=assembly_functions("task_list.json",2, 0, random_block.get(block), 0);
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
-                setupTrialview(block,task);
+                device_states[current_function.get_id()]=current_function.get_initstateid();
+                setupTrialview(block,task,-1,-1);
                 return true;
             }
         });
     }
 
-    private void setupTrialview(int block_num, int task_num){
+    private void setupTrialview(int block_num, int task_num,int semantic, int pressed){
+        isTrialView=true;
         setContentView(R.layout.block_layout);
         TextView block_textview = findViewById(R.id.block);
         TextView task_textview = findViewById(R.id.task);
@@ -376,7 +411,7 @@ public class MainActivity extends FragmentActivity
         task_name_textview.setText(all_tasks.get(task).get_device()[0]+" "+all_tasks.get(task).get_name());
 
         /**Study 2*/
-        if(session==0)
+       /* if(session==0)
             start_button.setVisibility(View.INVISIBLE);
         else{
             start_button.setVisibility(View.VISIBLE);
@@ -392,14 +427,7 @@ public class MainActivity extends FragmentActivity
                     log_trial.timestamp_pressed=System.currentTimeMillis();
                 }
             });
-        }
-
-        for (function f:all_functions
-        ) {
-            device_states[f.get_id()] = 1;
-        }
-
-        Log.d("view", Integer.toString(layoutId));
+        }*/
 
         View func_view = findViewById(R.id.task_view);
         func_view.setOnLongClickListener(new View.OnLongClickListener() {
@@ -410,21 +438,37 @@ public class MainActivity extends FragmentActivity
                 block=previous_block;
                 session=previous_session;
                 try {
-                    all_functions = assembly_functions("functions_study.json",2, 0, block+1, 0);
-                    all_tasks=assembly_functions("task_list.json",2, 0, block+1, 0);
+                    all_functions = assembly_functions("functions_study.json",2, 0, random_block.get(block),0);
+                    all_tasks=assembly_functions("task_list.json",2, 0, random_block.get(block), 0);
+                    device_states[current_function.get_id()]=current_function.get_initstateid();
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
-                setupTrialview(block,task);
+                setupTrialview(block,task,-1,-1);
                 return true;
             }
         });
+
+       if((semantic==0||semantic==1)&&pressed==1)
+       {
+           if (socket == null){
+               new NetworkAsyncTask().execute(ip);
+           }
+           log_trial.timestamp_pressed=System.currentTimeMillis();
+           isTrialView=false;
+
+           setUpMenuView(true,"",all_functions);
+       }
+
+        Log.d("view", Integer.toString(layoutId));
+
     }
 
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void setupfunctionview(int task_num, int semantic, int pressed, int slider_value) {
+        isTrialView=false;
         Log.e("display", Integer.toString(semantic));
         int view_func_select;
         //int viewid;
@@ -456,6 +500,20 @@ public class MainActivity extends FragmentActivity
                 funcid = R.id.function1;
         }
 
+        int[] target_functions;
+        switch (random_block.get(block)){
+            case 1:
+                target_functions=target_function_senario1;
+                break;
+            case 2:
+                target_functions=target_function_senario2;
+                break;
+            case 3:
+                target_functions=target_function_senario3;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + random_block.get(block));
+        }
 
         if (pressed == 1 && layoutId == R.layout.block_layout) {
             log_trial.timestamp_pressed = System.currentTimeMillis();
@@ -465,11 +523,18 @@ public class MainActivity extends FragmentActivity
             /**Study 2 fixed function time*/
             //int functionOrder= randomBlocks_StudyOne.get(task_num).get(1);
             int functionTime = 2;
+            Integer[] function_order;
+            if(semantic==0||semantic==1)
+                function_order  =new Integer[]{0,1};
+            else
+                function_order  =new Integer[]{0,1,2};
+            List<Integer>random_order=Arrays.asList(function_order);
+            Collections.shuffle(random_order);
 
            // log_trial.configure = new int[]{functionOrder, functionTime};
             int index = 0;
 
-            final List<function> functions = functionList(semantic, task_num);
+            final List<function> functions = functionList(semantic, task_num, random_order.get(0),target_functions[task_num]);
             log_trial.func_id=new int[functions.size()];
             for (int j = 0; j < functions.size(); j++) {
                 log_trial.func_id[j] = functions.get(j).get_id();
@@ -495,6 +560,11 @@ public class MainActivity extends FragmentActivity
             stopfunction = true;
             // deal with state display
             final int functionid = current_function.get_id();
+            if(functionid==target_functions[task_num])
+                correct_sound_player.start();
+            else
+                wrong_sound_player.start();
+
             int temp_stateid = device_states[functionid];
             if (semantic == 0){
                 temp_stateid -= 1;
@@ -565,7 +635,7 @@ public class MainActivity extends FragmentActivity
                                 setupstartview(block);
                             }
                             else{
-                                setupTrialview(block, task);
+                                setupTrialview(block, task,-1,-1);
                             }
                         }});}
             };
@@ -650,7 +720,25 @@ public class MainActivity extends FragmentActivity
         }
 
         if (pressed == 0){
+            int[] target_functions;
+            switch (random_block.get(block)){
+                case 1:
+                    target_functions=target_function_senario1;
+                    break;
+                case 2:
+                    target_functions=target_function_senario2;
+                    break;
+                case 3:
+                    target_functions=target_function_senario3;
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + random_block.get(block));
+            }
             final int functionid = current_function.get_id();
+            if(functionid==target_functions[task])
+                correct_sound_player.start();
+            else
+                wrong_sound_player.start();
             int temp_stateid = device_states[functionid];
             if(selectedSemantic==0){
             if (semantic == 0){
@@ -660,7 +748,7 @@ public class MainActivity extends FragmentActivity
                 }
             }
 
-            if (semantic == 1){
+            if (semantic == 1|| semantic == 2){
                 temp_stateid += 1;
                 if (temp_stateid > current_function.get_state().length - 1){
                     temp_stateid = 0;
@@ -724,7 +812,7 @@ public class MainActivity extends FragmentActivity
                                     setupstartview(block);
                                 }
                                 else{
-                                    setupTrialview(block, task);
+                                    setupTrialview(block, task,-1,-1);
                                 }
                             }});}
                 };
@@ -779,6 +867,7 @@ public class MainActivity extends FragmentActivity
         if (!stopfunction) {
             current_function = functions.get(index);
             layout.stopTimer();
+
             Log.d("functionlist",functions.get(index).get_device()[0]);
 
             int current_state = device_states[current_function.get_id()];
@@ -1021,7 +1110,7 @@ public class MainActivity extends FragmentActivity
                             isDeviceMenu=false;
                             viewIndex=0;
                         } else{
-                            //如果当前页面是功能选择页，返回首页
+                            //如果当前页面是功能选择页，进入功能调节页
                             TextView selectedFunction=(TextView)scrollList.getChildAt(viewIndex);
                             selectedSemantic=all_functions.get(selectedFunction.getId()).get_semantic()[0];
                             setupfunctionview_study2(selectedFunction.getId(),selectedSemantic,-1,SLIDER_VALUE);
@@ -1057,19 +1146,42 @@ public class MainActivity extends FragmentActivity
                 return;
             }
 //            Log.d("blescan", scanRecord.toString());
+           /*   int[] inputs = new int[]{-1,-1,-1,-1};
+          manudata = scanRecord.getManufacturerSpecificData(0x0059);
+            switch(block){
+                case 0:
+                    if (scanRecord.getDeviceName().equals("BoldMove1")){
+                        inputs = getTouchInput(manudata);
+                    }
+                    break;
+                case 1:
+                    if (task < 3 && scanRecord.getDeviceName().equals("BoldMove_Cup")){
+                        inputs = getTouchInput(manudata);
+                    }
+                    if (task >= 3 && scanRecord.getDeviceName().equals("BoldMove_Book")){
+                        inputs = getTouchInput(manudata);
+                    }
+                    break;
+                case 2:
+                    if (scanRecord.getDeviceName().equals("BoldMove_FG")){
+                        inputs = getTouchInput(manudata);
+                    }
+                    break;
+            }*/
             manudata = scanRecord.getManufacturerSpecificData(0x0059);
-            //Log.d("manudata", Arrays.toString(manudata));
-//            if (manudata != null) {
-//                send("ble scan results" + manudata[0] + manudata[1] + manudata[2] + manudata[3]);
-//            }
+
             int[] inputs = getTouchInput(manudata);
+
             if (inputs[0] > -1 && inputs[1] > -1) {
                 Log.d("manudata",Integer.toString(inputs[0])+Integer.toString(inputs[1]));
                 if(session==0)
                     setupfunctionview(task, inputs[0], inputs[1], SLIDER_VALUE);
                 /**Study 2 Session 2*/
                 else{
-                    if(isFunctionMenu==false)
+                    if(isTrialView==true)
+                        setupTrialview(block,task,inputs[0],inputs[1]);
+                        //Log.d("test","test");
+                    else if(isFunctionMenu==false)
                         updateMenuView(inputs[0],inputs[1],SLIDER_VALUE);
                     else
                         setupfunctionview_study2(0,inputs[0],inputs[1],SLIDER_VALUE);
@@ -1220,17 +1332,19 @@ public class MainActivity extends FragmentActivity
 
 
     /**Predefined function list*/
-    private List<function> functionList(int semantic,int block){
+    private List<function> functionList(int semantic,int task_num, int functionOrder,int target_function_id){
+
         List<function> semantic_functions = extract_semantic_functions(all_functions, semantic);
         Collections.shuffle(semantic_functions);
-       /* function target_function = new function();
+        function target_function = new function();
         for (function item:semantic_functions) {
-            if (item.get_id() < 4){
+            if (item.get_id() ==target_function_id){
                 target_function = item;
                 semantic_functions.remove(item);
                 break;
             }
-        }*/
+        }
+        semantic_functions.add(functionOrder, target_function);
         return semantic_functions;
     }
 

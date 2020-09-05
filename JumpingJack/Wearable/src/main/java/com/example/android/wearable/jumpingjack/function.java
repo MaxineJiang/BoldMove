@@ -17,7 +17,8 @@ public class function {
     private String[] devices;
     private String[] state;
     private Integer image;
-//
+    private int init_stateid;
+    //
 //    public function(String id, String name, String[] semantics, String[] devices, String[] state,
 //                    String image, Context context){
 //        this.id = Integer.parseInt(id);
@@ -34,6 +35,7 @@ public class function {
         this.devices = new String[]{""};
         this.state = new String[]{""};
         this.image = 0;
+        this.init_stateid = 0;
     }
 
     public function(JSONObject func, Context context) throws JSONException {
@@ -43,6 +45,7 @@ public class function {
         this.devices = extract_devices(func.getJSONArray("device"));
         this.state = extract_state(func.getJSONArray("state"));
         this.image = extract_image(func.getString("image"), context);
+        this.init_stateid = func.getInt("state0");
     }
 
     private Integer[] extract_semantics(JSONArray semantics) throws JSONException {
@@ -120,5 +123,5 @@ public class function {
     public Integer[] get_semantic(){
         return this.semantics;
     }
-    public Integer get_imageid() {return this.image;}
+    public Integer get_initstateid() {return this.init_stateid;}
 }

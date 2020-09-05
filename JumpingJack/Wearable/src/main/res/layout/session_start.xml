@@ -19,8 +19,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"
-        android:textSize="30sp"
+        android:layout_marginTop="30dp"
+        android:textSize="25sp"
         android:text="Session 0" />
 
     <TextView
@@ -28,9 +28,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="80dp"
-        android:textSize="30sp"
+        android:layout_marginTop="65dp"
+        android:textSize="25sp"
         android:text="Block 0" />
+
+    <TextView
+        android:id="@+id/block_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:textSize="15sp"
+        android:text="Block Name" />
 
 
 </RelativeLayout>

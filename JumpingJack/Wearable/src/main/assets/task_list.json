@@ -14,7 +14,7 @@
         {"id":"1", "function": "power off", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
         {"id":"2", "function": "power on", "device": ["lamp"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
         {"id":"3", "function": "increase lightness", "device": ["lamp"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"4", "function": "power on", "device": ["speaker"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"4", "function": "play", "device": ["speaker"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
         {"id":"5", "function": "next song", "device": ["speaker"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
         {"id":"6", "function": "decrease volume", "device": ["speaker"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
         {"id":"7", "function": "power off", "device": ["lamp"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "}

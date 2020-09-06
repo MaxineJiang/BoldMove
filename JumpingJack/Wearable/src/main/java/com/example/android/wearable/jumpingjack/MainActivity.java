@@ -271,8 +271,8 @@ public class MainActivity extends FragmentActivity
                            .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)//
                            .build();
 
-            //ScanFilter namefilter = new ScanFilter.Builder().setManufacturerData(0x0059, new byte[]{0x00, 0x00, 0x00, 0x00}, new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}).build();
-            ScanFilter namefilter = new ScanFilter.Builder().setDeviceName("BoldMove").build();
+            ScanFilter namefilter = new ScanFilter.Builder().setManufacturerData(0x0059, new byte[]{0x00, 0x00, 0x00, 0x00}, new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}).build();
+            //ScanFilter namefilter = new ScanFilter.Builder().setDeviceName("BoldMove").build();
 
             filters.add(namefilter);
             scanLeDevice(true);
@@ -748,12 +748,20 @@ public class MainActivity extends FragmentActivity
                 }
             }
 
-            if (semantic == 1|| semantic == 2){
+            if (semantic == 1){
                 temp_stateid += 1;
                 if (temp_stateid > current_function.get_state().length - 1){
                     temp_stateid = 0;
                 }
             }}
+
+            if(selectedSemantic==2){
+                if(semantic==2){
+                    temp_stateid += 1;
+                    if (temp_stateid > current_function.get_state().length - 1){
+                        temp_stateid = 0;
+                    }}
+            }
 
             // update displayed state
             if (semantic == 2 && selectedSemantic==2){
@@ -818,22 +826,7 @@ public class MainActivity extends FragmentActivity
                 };
 
                 scrollTimer.schedule(scrollTask, 2000);//every 2 seconds
-           // func_view.setOnClickListener(new View.OnClickListener() {
-              //  @Override
-               // public void onClick(View v) {
 
-
-             //   }
-          //  });
-
-           /* func_view.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    log_trial = new log_data();
-                    setupTrialview(block, task);
-                    return true;
-                }
-            });*/
             }
         }
 
@@ -861,6 +854,7 @@ public class MainActivity extends FragmentActivity
                 slider.setProgress(scaled_value);
             }
         }
+
     }
 
     private void  updatefunctionview(final int index, final List<function> functions, CircularProgressLayout layout, final int sem, final int funcid, final int deviceid){
@@ -1146,7 +1140,7 @@ public class MainActivity extends FragmentActivity
                 return;
             }
 //            Log.d("blescan", scanRecord.toString());
-           /*   int[] inputs = new int[]{-1,-1,-1,-1};
+             int[] inputs = new int[]{-1,-1,-1,-1};
           manudata = scanRecord.getManufacturerSpecificData(0x0059);
             switch(block){
                 case 0:
@@ -1167,10 +1161,10 @@ public class MainActivity extends FragmentActivity
                         inputs = getTouchInput(manudata);
                     }
                     break;
-            }*/
-            manudata = scanRecord.getManufacturerSpecificData(0x0059);
+            }
+            /*manudata = scanRecord.getManufacturerSpecificData(0x0059);
 
-            int[] inputs = getTouchInput(manudata);
+            int[] inputs = getTouchInput(manudata);*/
 
             if (inputs[0] > -1 && inputs[1] > -1) {
                 Log.d("manudata",Integer.toString(inputs[0])+Integer.toString(inputs[1]));
@@ -1333,18 +1327,20 @@ public class MainActivity extends FragmentActivity
 
     /**Predefined function list*/
     private List<function> functionList(int semantic,int task_num, int functionOrder,int target_function_id){
-
+        boolean isTargetFunction=false;
         List<function> semantic_functions = extract_semantic_functions(all_functions, semantic);
         Collections.shuffle(semantic_functions);
         function target_function = new function();
         for (function item:semantic_functions) {
             if (item.get_id() ==target_function_id){
+                isTargetFunction=true;
                 target_function = item;
                 semantic_functions.remove(item);
                 break;
             }
         }
-        semantic_functions.add(functionOrder, target_function);
+        if(isTargetFunction)
+            semantic_functions.add(functionOrder, target_function);
         return semantic_functions;
     }
 

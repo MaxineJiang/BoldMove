@@ -82,6 +82,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import static java.lang.Math.abs;
+import static java.lang.Math.log;
 
 /**
  * The main activity for the Jumping Jack application. This activity registers itself to receive
@@ -771,6 +772,7 @@ public class MainActivity extends FragmentActivity
                     throw new IllegalStateException("Unexpected value: " + random_block.get(block));
             }
             final int functionid = current_function.get_id();
+            log_trial.funcid_target = target_functions[task];
             if(functionid==target_functions[task])
                 correct_sound_player.start();
             else
@@ -1158,6 +1160,8 @@ public class MainActivity extends FragmentActivity
                             //如果当前页面是功能选择页，进入功能调节页
                             TextView selectedFunction=(TextView)scrollList.getChildAt(viewIndex);
                             selectedSemantic=all_functions.get(selectedFunction.getId()).get_semantic()[0];
+                            log_trial.funcid_selected = selectedFunction.getId();
+                            log_trial.timestamp_selected = System.currentTimeMillis();
                             setupfunctionview_study2(selectedFunction.getId(),selectedSemantic,-1,SLIDER_VALUE);
                             isFunctionMenu=true;
                             isDeviceMenu=true;

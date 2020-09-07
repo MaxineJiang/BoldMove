@@ -661,6 +661,7 @@ public class MainActivity extends FragmentActivity
 
                             previous_task=task;
                             previous_block=block;
+                            previous_session=session;
 
                             task = task + 1;
                             /**Study 2 total trial number*/

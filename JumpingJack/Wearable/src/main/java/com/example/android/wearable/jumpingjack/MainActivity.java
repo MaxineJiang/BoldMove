@@ -208,8 +208,8 @@ public class MainActivity extends FragmentActivity
     boolean listening;
     String tmp_s;
 //    String ip = "192.168.43.224";
- //   String ip = "192.168.1.100";
-    String ip = "10.127.44.126";
+    String ip = "192.168.1.100";
+ //   String ip = "10.127.44.126";
     log_data log_trial = new log_data();
     Context context;
 
@@ -1523,7 +1523,7 @@ public class MainActivity extends FragmentActivity
     void disconnect() {
         try {
             //if (reader != null) reader.close();
-            //if (writer != null) writer.close();
+            if (writer != null) writer.close();
             socket.close();
             socket = null;
             //text_connect_info.setText("disconnected");
@@ -1571,39 +1571,42 @@ public class MainActivity extends FragmentActivity
         protected String doInBackground(String... params) {
             try {
                 socket = new Socket(params[0], PORT);
-                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                //reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
                 Thread.sleep(300);
                 writer.print("Client Send!");
                 writer.flush();
                 listening = false;
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d("b2wdebug", "listening");
-                        while (listening) {
-                            try {
-                                String s = reader.readLine();
-                                if (s == null) listening = false;
-//                                recv(s);
-                            } catch (Exception e) {
-                                Log.d("b2wdebug", "listen thread error: " + e.toString());
-                                listening = false;
-                                break;
-                            }
-                        }
-//                        activity_uithread.runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                disconnect();
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Log.d("b2wdebug", "listening");
+//                        while (listening) {
+//                            try {
+//                                String s = reader.readLine();
+//                                if (s == null) listening = false;
+////                                recv(s);
+//                            } catch (Exception e) {
+//                                Log.d("b2wdebug", "listen thread error: " + e.toString());
+//                                listening = false;
+//                                break;
 //                            }
 //                        }
-//                        );
-                    }
-                }).start();
+////                        activity_uithread.runOnUiThread(new Runnable() {
+////                            @Override
+////                            public void run() {
+////                                disconnect();
+////                            }
+////                        }
+////                        );
+//                    }
+//                }).start();
                 return socket.toString();
             } catch (Exception e) {
                 socket = null;
+                if (writer != null){
+                    writer.close();
+                }
                 return e.toString();
             }
         }

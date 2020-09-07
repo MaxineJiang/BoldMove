@@ -372,7 +372,7 @@ public class MainActivity extends FragmentActivity
         }
         // display session number
         if (session < 2){
-            session_textview.setText("Session "+session);
+            session_textview.setText("Session "+random_session.get(session));
         }
         else{
             session_textview.setText("Experiment Finished");

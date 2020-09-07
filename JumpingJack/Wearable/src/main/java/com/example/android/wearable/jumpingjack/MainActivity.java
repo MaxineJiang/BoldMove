@@ -129,6 +129,7 @@ public class MainActivity extends FragmentActivity
     private Integer[][] blocks_StudyOne;
     private List<List<Integer>> randomBlocks_StudyOne;
     private List<Integer> random_block;
+    private List<Integer> random_session;
     private String[] block_name;
     private int viewIndex=0;
     private boolean isDeviceMenu=true;
@@ -235,6 +236,10 @@ public class MainActivity extends FragmentActivity
         random_block= Arrays.asList(blocks);
         Collections.shuffle(random_block);
 
+        Integer[] sessions=new Integer[]{0,1};
+        random_session=Arrays.asList(sessions);
+        Collections.shuffle(random_session);
+
         target_function_senario1=new int[]{8,9,7,3,2,2,1,6};
         target_function_senario2=new int[]{1,0,3,5,6,7,8,3};
         target_function_senario3=new int[]{0,2,9,7,4,5,1,4};
@@ -294,7 +299,7 @@ public class MainActivity extends FragmentActivity
                            .build();
 
             ScanFilter namefilter = new ScanFilter.Builder().setManufacturerData(0x0059, new byte[]{0x00, 0x00, 0x00, 0x00}, new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}).build();
-            //ScanFilter namefilter = new ScanFilter.Builder().setDeviceName("BoldMove").build();
+            //ScanFilter namefilter = new ScanFilter.Builder().setDeviceName("BoldMove_Book").build();
 
             filters.add(namefilter);
             scanLeDevice(true);
@@ -471,6 +476,7 @@ public class MainActivity extends FragmentActivity
             }
         });
 
+        if(random_session.get(session)==1){
        if((semantic==0||semantic==1)&&pressed==1)
        {
            if (socket == null){
@@ -480,7 +486,7 @@ public class MainActivity extends FragmentActivity
            isTrialView=false;
 
            setUpMenuView(true,"",all_functions);
-       }
+       }}
 
         Log.d("view", Integer.toString(layoutId));
 
@@ -626,7 +632,7 @@ public class MainActivity extends FragmentActivity
             final int finalTemp_stateid = temp_stateid;
 
             device_states[functionid] = finalTemp_stateid;
-            log_trial.session = session;
+            log_trial.session = random_session.get(session);
             log_trial.block = block;
             log_trial.trial = task;
             if (socket == null){
@@ -708,7 +714,7 @@ public class MainActivity extends FragmentActivity
                 slider.setMin(min);
                 slider.setProgress(scaled_value);
 
-                log_trial.session = session;
+                log_trial.session = random_session.get(session);
                 log_trial.block = block;
                 log_trial.trial = task;
                 if (socket == null){
@@ -824,7 +830,7 @@ public class MainActivity extends FragmentActivity
             if(func_view!=null){
             final int finalTemp_stateid = temp_stateid;
                 device_states[functionid] = finalTemp_stateid;
-                log_trial.session = session;
+                log_trial.session = random_session.get(session);
                 log_trial.block = block;
                 log_trial.trial = task;
                 if (socket == null){
@@ -894,7 +900,7 @@ public class MainActivity extends FragmentActivity
                 slider.setMin(min);
                 slider.setProgress(scaled_value);
 
-                log_trial.session = session;
+                log_trial.session = random_session.get(session);
                 log_trial.block = block;
                 log_trial.trial = task;
                 if (socket == null){
@@ -1221,12 +1227,14 @@ public class MainActivity extends FragmentActivity
 //                    break;
 //            }
             /*manudata = scanRecord.getManufacturerSpecificData(0x0059);
-
-            int[] inputs = getTouchInput(manudata);*/
+            int[] inputs;
+            if (scanRecord.getDeviceName().equals("BoldMove_Book")){
+                inputs = getTouchInput(manudata);*/
 
             if (inputs[0] > -1 && inputs[1] > -1) {
                 Log.d("manudata",Integer.toString(inputs[0])+Integer.toString(inputs[1]));
-                if(session==0)
+                Log.d("current_session", String.valueOf(random_session.get(session)));
+                if(random_session.get(session)==0)
                     setupfunctionview(task, inputs[0], inputs[1], SLIDER_VALUE);
                 /**Study 2 Session 2*/
                 else{

@@ -217,6 +217,7 @@ public class MainActivity extends FragmentActivity
  //   String ip = "10.127.44.126";
     log_data log_trial = new log_data();
     Context context;
+//    int[] target_functions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -800,6 +801,7 @@ public class MainActivity extends FragmentActivity
         if (pressed == 0){
 
             final int functionid = current_function.get_id();
+
             if(functionid==target_functions[task])
                 correct_sound_player.start();
             else
@@ -850,7 +852,6 @@ public class MainActivity extends FragmentActivity
             View func_view = findViewById(viewid);
             if(func_view!=null){
             final int finalTemp_stateid = temp_stateid;
-                device_states[functionid] = finalTemp_stateid;
                 scrollTimer = new Timer();
 
                 /**Timer: page scroll every 2s*/
@@ -862,6 +863,7 @@ public class MainActivity extends FragmentActivity
                             @Override
                             public void run() {
                                 isFunctionMenu=false;
+                                device_states[functionid] = finalTemp_stateid;
 
                                 log_trial = new log_data();
 
@@ -902,6 +904,7 @@ public class MainActivity extends FragmentActivity
                 int scaled_value = min + (max - min) * (SLIDER_VALUE) / 15;
 
                 device_states[current_function.get_id()] = scaled_value - min;
+                Log.d("current_function",Integer.toString(current_function.get_id()));
                 //Log.d("scale", scale[0]+"-"+scale[scale.length-1]+"-"+min+"-"+max+"-"+scaled_value);
                 svalue.setText(Integer.toString(scaled_value));
 
@@ -954,7 +957,13 @@ public class MainActivity extends FragmentActivity
                 rimage.setImageResource(context.getResources().getIdentifier(rimage_src, "drawable", context.getPackageName()));
                 TextView state_text = findViewById(R.id.state_text1);
                 Log.d("current_state", String.valueOf(current_state));
-                state_text.setText(current_function.get_state()[current_state]);
+                /**Study 2 functions*/
+                try{
+                    state_text.setText(current_function.get_state()[current_state]);
+                }catch(Exception e){
+
+                }
+
             }
 
             if (sem == 1) {
@@ -1022,20 +1031,20 @@ public class MainActivity extends FragmentActivity
     };
 
     private void  updatefunctionview_study2(final int index, final List<function> functions, final int sem, final int funcid, final int deviceid){
+        //if(!stopfunction) {
             current_function = functions.get(index);
-
+            Log.e("updatefunctionview", Integer.toString(current_function.get_id()));
             int current_state = device_states[current_function.get_id()];
             String image_src;
-            if(sem == 2) {
+            if (sem == 2) {
                 image_src = functions.get(index).get_name() + "_" + current_state;
-            }
-            else{
+            } else {
                 image_src = functions.get(index).get_name();
 
             }
             Log.d("funcupdate", Integer.toString(index));
             Log.d("funcupdate", Integer.toString(sem));
-            Log.d("funcupdate",image_src);
+            Log.d("funcupdate", image_src);
 
             ImageView image = findViewById(funcid);
             int drawableId = context.getResources().getIdentifier(image_src, "drawable", context.getPackageName());
@@ -1045,7 +1054,7 @@ public class MainActivity extends FragmentActivity
             device.setText(Arrays.toString(functions.get(index).get_device()).replace("[", " ").replace("]", " "));
 
             if (sem == 0) {
-                ImageView limage  = findViewById(R.id.semanticl);
+                ImageView limage = findViewById(R.id.semanticl);
                 String limage_src = "previous_l";
                 limage.setImageResource(context.getResources().getIdentifier(limage_src, "drawable", context.getPackageName()));
                 ImageView rimage = findViewById(R.id.semanticr);
@@ -1056,7 +1065,7 @@ public class MainActivity extends FragmentActivity
             }
 
             if (sem == 1) {
-                ImageView limage  = findViewById(R.id.semanticl);
+                ImageView limage = findViewById(R.id.semanticl);
                 String limage_src = "next_l";
                 limage.setImageResource(context.getResources().getIdentifier(limage_src, "drawable", context.getPackageName()));
                 ImageView rimage = findViewById(R.id.semanticr);
@@ -1078,8 +1087,8 @@ public class MainActivity extends FragmentActivity
                 SeekBar slider = findViewById(R.id.seekBar3);
                 //slider.setEnabled(false);
                 String[] scale = current_function.get_state();
-                int min  = Integer.parseInt(scale[0], 10);
-                int max = Integer.parseInt(scale[scale.length-1], 10);
+                int min = Integer.parseInt(scale[0], 10);
+                int max = Integer.parseInt(scale[scale.length - 1], 10);
                 //int scaled_value = min + (max-min) * (SLIDER_VALUE)/ 15;
                 slider.setMax(max);
                 slider.setMin(min);
@@ -1089,7 +1098,7 @@ public class MainActivity extends FragmentActivity
                 slider_value.setText(scale[current_state]);
 
             }
-
+       // }
     };
 
     /**Study 2: baseline study - device and function scroll menu setup*/
@@ -1117,6 +1126,7 @@ public class MainActivity extends FragmentActivity
                 if(functions.get(i).get_device()[0].equals(selectedDevice)){
                     textView=new TextView(this);
                     textView.setId(functions.get(i).get_id());
+                    Log.d("setFunctionID",Integer.toString(functions.get(i).get_id()));
                     textView.setText(functions.get(i).get_name());
                     textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP,25);
                     textView.setGravity(Gravity.CENTER);
@@ -1165,7 +1175,7 @@ public class MainActivity extends FragmentActivity
                             TextView selectedFunction=(TextView)scrollList.getChildAt(viewIndex);
                             selectedSemantic=all_functions.get(selectedFunction.getId()).get_semantic()[0];
                             log_trial.funcid_selected = selectedFunction.getId();
-                            setupfunctionview_study2(selectedFunction.getId(),selectedSemantic,-1,SLIDER_VALUE);
+                            setupfunctionview_study2(all_functions.get(selectedFunction.getId()).get_id(),selectedSemantic,-1,SLIDER_VALUE);
                             isFunctionMenu=true;
                             isDeviceMenu=true;
                             viewIndex=0;
@@ -1230,7 +1240,7 @@ public class MainActivity extends FragmentActivity
 
             if (inputs[0] > -1 && inputs[1] > -1) {
                 Log.d("manudata",Integer.toString(inputs[0])+Integer.toString(inputs[1]));
-                Log.d("current_session", String.valueOf(random_session.get(session)));
+//                Log.d("current_session", String.valueOf(random_session.get(session)));
                 if(random_session.get(session)==0)
                     setupfunctionview(task, inputs[0], inputs[1], SLIDER_VALUE);
                 /**Study 2 Session 2*/

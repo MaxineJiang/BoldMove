@@ -28,9 +28,12 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.media.AudioDeviceInfo;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -208,7 +211,7 @@ public class MainActivity extends FragmentActivity
     boolean listening;
     String tmp_s;
 //    String ip = "192.168.43.224";
-    String ip = "192.168.1.100";
+    String ip = "192.168.1.103";
  //   String ip = "10.127.44.126";
     log_data log_trial = new log_data();
     Context context;
@@ -249,6 +252,24 @@ public class MainActivity extends FragmentActivity
         send("New Experiment\n");
         setupstartview(block);
 
+        Log.e("speaker", Boolean.toString(checkspeaker()));
+    }
+
+    private boolean checkspeaker(){
+        PackageManager packageManager = context.getPackageManager();
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        // Check whether the device has a speaker.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                // Check FEATURE_AUDIO_OUTPUT to guard against false positives.
+                packageManager.hasSystemFeature(PackageManager.FEATURE_AUDIO_OUTPUT)) {
+            AudioDeviceInfo[] devices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+            for (AudioDeviceInfo device : devices) {
+                if (device.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**Register sensor listener*/
@@ -539,7 +560,7 @@ public class MainActivity extends FragmentActivity
             for (int j = 0; j < functions.size(); j++) {
                 log_trial.func_id[j] = functions.get(j).get_id();
             }
-            //log_trial.funcid_target = log_trial.func_id[functionOrder];
+            log_trial.funcid_target = target_functions[task_num];
 
             circularProgress = (CircularProgressLayout) findViewById(cp);
             Log.e("display", Integer.toString(circularProgress.getId()));
@@ -552,7 +573,9 @@ public class MainActivity extends FragmentActivity
         }
 
         if (pressed == 0 && layoutId == view_func_select){
-            log_trial.timestamp_selected = System.currentTimeMillis();
+            if(semantic != 2) {
+                log_trial.timestamp_selected = System.currentTimeMillis();
+            }
             log_trial.funcid_selected = current_function.get_id();
             circularProgress.stopTimer();
             circularProgress.setVisibility(View.INVISIBLE);
@@ -599,8 +622,20 @@ public class MainActivity extends FragmentActivity
             }
 
             Log.d("display", Integer.toString(view_func_select));
-
             final int finalTemp_stateid = temp_stateid;
+
+            device_states[functionid] = finalTemp_stateid;
+            log_trial.session = session;
+            log_trial.block = block;
+            log_trial.trial = task;
+            if (socket == null){
+                new NetworkAsyncTask().execute(ip);
+            }
+            else{
+                Log.d("socket", String.valueOf(socket.isConnected()));
+            }
+            send(log_trial.assemby_send_string());
+
             scrollTimer = new Timer();
 
             /**Timer: page scroll every 2s*/
@@ -611,17 +646,7 @@ public class MainActivity extends FragmentActivity
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            device_states[functionid] = finalTemp_stateid;
-                            log_trial.session = session;
-                            log_trial.block = block;
-                            log_trial.trial = task;
-                            if (socket == null){
-                                new NetworkAsyncTask().execute(ip);
-                            }
-                            else{
-                                Log.d("socket", String.valueOf(socket.isConnected()));
-                            }
-                            send(log_trial.assemby_send_string());
+
                             log_trial = new log_data();
 
                             previous_task=task;
@@ -681,6 +706,17 @@ public class MainActivity extends FragmentActivity
                 slider.setMax(max);
                 slider.setMin(min);
                 slider.setProgress(scaled_value);
+
+                log_trial.session = session;
+                log_trial.block = block;
+                log_trial.trial = task;
+                if (socket == null){
+                    new NetworkAsyncTask().execute(ip);
+                }
+                else{
+                    Log.d("socket", String.valueOf(socket.isConnected()));
+                }
+                send(log_trial.assemby_send_string());
             }
         }
     }
@@ -785,6 +821,19 @@ public class MainActivity extends FragmentActivity
             View func_view = findViewById(viewid);
             if(func_view!=null){
             final int finalTemp_stateid = temp_stateid;
+                device_states[functionid] = finalTemp_stateid;
+                log_trial.session = session;
+                log_trial.block = block;
+                log_trial.trial = task;
+                if (socket == null){
+                    new NetworkAsyncTask().execute(ip);
+                }
+                else{
+                    Log.d("socket", String.valueOf(socket.isConnected()));
+                }
+                if (semantic != 2){
+                    send(log_trial.assemby_send_string());
+                }
                 scrollTimer = new Timer();
 
                 /**Timer: page scroll every 2s*/
@@ -796,17 +845,7 @@ public class MainActivity extends FragmentActivity
                             @Override
                             public void run() {
                                 isFunctionMenu=false;
-                                device_states[functionid] = finalTemp_stateid;
-                                log_trial.session = session;
-                                log_trial.block = block;
-                                log_trial.trial = task;
-                                if (socket == null){
-                                    new NetworkAsyncTask().execute(ip);
-                                }
-                                else{
-                                    Log.d("socket", String.valueOf(socket.isConnected()));
-                                }
-                                send(log_trial.assemby_send_string());
+
                                 log_trial = new log_data();
 
                                 previous_task=task;
@@ -852,6 +891,18 @@ public class MainActivity extends FragmentActivity
                 slider.setMax(max);
                 slider.setMin(min);
                 slider.setProgress(scaled_value);
+
+                log_trial.session = session;
+                log_trial.block = block;
+                log_trial.trial = task;
+                if (socket == null){
+                    new NetworkAsyncTask().execute(ip);
+                }
+                else{
+                    Log.d("socket", String.valueOf(socket.isConnected()));
+                }
+                send(log_trial.assemby_send_string());
+
             }
         }
 
@@ -1142,26 +1193,29 @@ public class MainActivity extends FragmentActivity
 //            Log.d("blescan", scanRecord.toString());
              int[] inputs = new int[]{-1,-1,-1,-1};
           manudata = scanRecord.getManufacturerSpecificData(0x0059);
-            switch(block){
-                case 0:
-                    if (scanRecord.getDeviceName().equals("BoldMove1")){
-                        inputs = getTouchInput(manudata);
-                    }
-                    break;
-                case 1:
-                    if (task < 3 && scanRecord.getDeviceName().equals("BoldMove_Cup")){
-                        inputs = getTouchInput(manudata);
-                    }
-                    if (task >= 3 && scanRecord.getDeviceName().equals("BoldMove_Book")){
-                        inputs = getTouchInput(manudata);
-                    }
-                    break;
-                case 2:
-                    if (scanRecord.getDeviceName().equals("BoldMove_FG")){
-                        inputs = getTouchInput(manudata);
-                    }
-                    break;
+          if (scanRecord.getDeviceName().equals("BoldMove_test")){
+                inputs = getTouchInput(manudata);
             }
+//            switch(block){
+//                case 0:
+//                    if (scanRecord.getDeviceName().equals("BoldMove1")){
+//                        inputs = getTouchInput(manudata);
+//                    }
+//                    break;
+//                case 1:
+//                    if (task < 3 && scanRecord.getDeviceName().equals("BoldMove_Cup")){
+//                        inputs = getTouchInput(manudata);
+//                    }
+//                    if (task >= 3 && scanRecord.getDeviceName().equals("BoldMove_Book")){
+//                        inputs = getTouchInput(manudata);
+//                    }
+//                    break;
+//                case 2:
+//                    if (scanRecord.getDeviceName().equals("BoldMove_FG")){
+//                        inputs = getTouchInput(manudata);
+//                    }
+//                    break;
+//            }
             /*manudata = scanRecord.getManufacturerSpecificData(0x0059);
 
             int[] inputs = getTouchInput(manudata);*/

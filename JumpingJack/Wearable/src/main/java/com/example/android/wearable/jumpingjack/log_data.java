@@ -23,7 +23,7 @@ public class log_data {
         this.trial = -1;
         this.funcid_selected  = -1;
         this.funcid_target  = -1;
-        this.configure = new int[]{0,0};
+        this.configure = new int[]{2,2};
         this.timestamp_pressed = 0;
         this.timestamp_selected = 0;
         this.timestamp_func_start = new long[5];

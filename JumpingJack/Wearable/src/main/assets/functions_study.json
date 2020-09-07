@@ -26,7 +26,7 @@
         {"id":"5", "function": "desktop", "device": ["Laptop"], "semantic": ["previous","next"], "state": ["DESKTOP1","DESKTOP2"], "state0":"0","image": " "},
         {"id":"6", "function": "call", "device": ["Phone"], "semantic": ["toggle"], "state": ["SPEAKING", "HUNG UP"], "state0":"0", "image": " "},
         {"id":"7", "function": "microphone", "device": ["Phone"], "semantic": ["toggle"], "state": ["MUTED", "UNMUTED"], "state0":"0","image": " "},
-        {"id":"8", "function": "redial", "device": ["Phone"], "semantic": ["toggle"], "state": ["DIALING"," "], "state0":"0", "image": " "},
+        {"id":"8", "function": "redial", "device": ["Phone"], "semantic": ["toggle"], "state": ["DIALING"," "], "state0":"1", "image": " "},
         {"id":"9", "function": "volume", "device": ["Phone"], "semantic": ["adjust"], "state": ["0-30"], "state0":"15","image": " "}
     ],
     "functions_study2_scenario2":[
@@ -36,7 +36,7 @@
         {"id":"3", "function": "power", "device": ["Lamp"], "semantic": ["toggle"], "state": ["ON","OFF"], "state0":"1","image": " "},
         {"id":"4", "function": "mode", "device": ["Lamp"], "semantic": ["previous","next"], "state": ["LOW", "MEDIUM", "HIGH"], "state0":"1","image": " "},
         {"id":"5", "function": "brightness", "device": ["Lamp"], "semantic": ["adjust"], "state": ["0-100"], "state0":"50","image": " "},
-        {"id":"6", "function": "play", "device": ["Speaker"], "semantic": ["toggle"], "state": ["PLAYING","PAUSED"], "state0":"0","image": " "},
+        {"id":"6", "function": "play", "device": ["Speaker"], "semantic": ["toggle"], "state": ["PLAYING","PAUSED"], "state0":"1","image": " "},
         {"id":"7", "function": "song", "device": ["Speaker"], "semantic": ["previous","next"], "state": ["Beat It", "We Are The World", "Billie Jean"], "state0":"0","image": " "},
         {"id":"8", "function": "volume", "device": ["Speaker"], "semantic": ["adjust"], "state": ["0-30"], "state0":"15","image": " "}
     ],

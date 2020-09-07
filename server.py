@@ -10,13 +10,13 @@ PORT = 11121
 ip = input("Input IP: ")
 print('[     ip     ]:', ip)
 
-col_names = ['session', 'block', 'trial', 'func_selected', 'func_target', 'configure', 'timestamp_pressed', 'timestamp_selected', 'func_id', 'timestamp_func_start', 'mental','physical','overall']
+col_names = ['session', 'block', 'trial', 'func_selected', 'func_target', 'configure', 'timestamp_pressed', 'timestamp_selected', 'func_id', 'timestamp_func_start', 'device_selected']
 df = pd.DataFrame(columns=col_names)
 
 
 user = 'ztx'
 age = '31'
-filename = "./study1_data/"+user+'_'+age
+filename = "./study2_data/"+user+'_'+age
 
 '''
 # socketserver
@@ -62,14 +62,22 @@ def send(client, s):
 def recv(client, address, s):
 	global df
 	print('[%s:%d]: %s' % (address[0], address[1], s))
-	if len(s.split(";")) == len(col_names) - 3:
+	if len(s.split(";")) == len(col_names):
 		#print(s.split(";"))
 		s_array = s.split(";")
 		session = s_array[0]
 		block = s_array[1]
 		trial = s_array[2]
-		df.loc[len(df)] = s_array + rating_input(session, block, trial)
-		print("Done")
+
+		if (s_array[3] == '-1'):
+			print("EMPTY STRING, please long press the screen to redo!")
+		elif (s_array[3] == s_array[4]):
+			print("CORRECT!")
+			df.loc[len(df)] = s_array
+		else:
+			print("WRONG TASK, please long press the screen to redo!")
+			df.loc[len(df)] = s_array
+
 		#row = pd.DataFrame(s.split(";"), columns=col_names, ignore_index=True)
 		#df = df.append(row, ignore_index=True)
 	elif s == "Experiment Finished":

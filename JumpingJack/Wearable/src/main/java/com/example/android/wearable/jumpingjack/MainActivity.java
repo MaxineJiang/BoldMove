@@ -344,12 +344,7 @@ public class MainActivity extends FragmentActivity
                 e.printStackTrace();
             }
             Log.d("all function size", String.valueOf(all_functions.size()));
-            device_states = new int[all_functions.size()];
-            // reinitialize states of all devices
-            for (function f:all_functions
-            ) {
-                device_states[f.get_id()] = f.get_initstateid();
-            }
+
         }
         else{
             block_textview.setText("Session "+session+"Finished!");
@@ -365,12 +360,12 @@ public class MainActivity extends FragmentActivity
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
-            device_states = new int[all_functions.size()];
-            // reinitialize states of all devices
-            for (function f:all_functions
-            ) {
-                device_states[f.get_id()] = f.get_initstateid();
-            }
+//            device_states = new int[all_functions.size()];
+//            // reinitialize states of all devices
+//            for (function f:all_functions
+//            ) {
+//                device_states[f.get_id()] = f.get_initstateid();
+//            }
         }
         // display session number
         if (session < 2){
@@ -382,6 +377,12 @@ public class MainActivity extends FragmentActivity
             disconnect();
         }
 
+        if (socket == null){
+            new NetworkAsyncTask().execute(ip);
+        }
+        send("Session: "+random_session.toString());
+        send("Block: "+random_block.toString());
+
         Button start_button = findViewById(R.id.button_start);
         start_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -390,7 +391,13 @@ public class MainActivity extends FragmentActivity
                 if (socket == null){
                     new NetworkAsyncTask().execute(ip);
                 }
-                send(random_block.toString());
+                device_states = new int[all_functions.size()];
+                // reinitialize states of all devices
+                for (function f:all_functions
+                ) {
+                    device_states[f.get_id()] = f.get_initstateid();
+                }
+//                send(random_block.toString());
 //                while (socket == null && cnt > 0) {
 //                    new NetworkAsyncTask().execute(ip);
 //                    if (socket.isConnected()){
@@ -410,9 +417,20 @@ public class MainActivity extends FragmentActivity
             @Override
             public boolean onLongClick(View v) {
                 log_trial = new log_data();
-                task=previous_task;
-                block=previous_block;
-                session=previous_session;
+//                task=previous_task;
+//                block=previous_block;
+//                session=previous_session;
+                if(task>0)
+                    task--;
+                else if(block>0){
+                    block--;
+                    task=7;
+                }else if(session>0){
+                    session--;
+                    block=2;
+                    task=7;
+                }
+
                 try {
                     all_functions = assembly_functions("functions_study.json",2, 0, random_block.get(block), 0);
                     all_tasks=assembly_functions("task_list.json",2, 0, random_block.get(block), 0);
@@ -464,9 +482,20 @@ public class MainActivity extends FragmentActivity
             @Override
             public boolean onLongClick(View v) {
                 log_trial = new log_data();
-                task=previous_task;
-                block=previous_block;
-                session=previous_session;
+//                task=previous_task;
+//                block=previous_block;
+//                session=previous_session;
+                if(task>0)
+                    task--;
+                else if(block>0){
+                    block--;
+                    task=7;
+                }else if(session>0){
+                    session--;
+                    block=2;
+                    task=7;
+                }
+
                 try {
                     all_functions = assembly_functions("functions_study.json",2, 0, random_block.get(block),0);
                     all_tasks=assembly_functions("task_list.json",2, 0, random_block.get(block), 0);
@@ -719,7 +748,7 @@ public class MainActivity extends FragmentActivity
                 slider.setProgress(scaled_value);
 
                 if(previousPressed == 1) {
-                    log_trial.session = random_session.get(session);
+                    log_trial.session = session;
                     log_trial.block = block;
                     log_trial.trial = task;
                     if (socket == null) {
@@ -781,20 +810,20 @@ public class MainActivity extends FragmentActivity
 
         if (pressed == -1) {
             //send log to server
-            log_trial.funcid_target = target_functions[task];
-            log_trial.timestamp_selected = System.currentTimeMillis();
-            log_trial.session = session;
-            log_trial.block = block;
-            log_trial.trial = task;
+            if (semantic == 3) {
+                log_trial.funcid_target = target_functions[task];
+                log_trial.timestamp_selected = System.currentTimeMillis();
+                log_trial.session = session;
+                log_trial.block = block;
+                log_trial.trial = task;
 
-            if (socket == null){
-                new NetworkAsyncTask().execute(ip);
+                if (socket == null) {
+                    new NetworkAsyncTask().execute(ip);
+                } else {
+                    Log.d("socket", String.valueOf(socket.isConnected()));
+                }
+                send(log_trial.assemby_send_string());
             }
-            else{
-                Log.d("socket", String.valueOf(socket.isConnected()));
-            }
-            send(log_trial.assemby_send_string());
-
             setContentView(view_func_select);
             updatefunctionview_study2(index, all_functions, semantic, funcid, deviceid);
         }
@@ -808,6 +837,22 @@ public class MainActivity extends FragmentActivity
             else
                 wrong_sound_player.start();
             int temp_stateid = device_states[functionid];
+
+            if (semantic != 3 && semantic == selectedSemantic) {
+                log_trial.funcid_target = target_functions[task];
+                log_trial.timestamp_selected = System.currentTimeMillis();
+                log_trial.session = session;
+                log_trial.block = block;
+                log_trial.trial = task;
+
+                if (socket == null) {
+                    new NetworkAsyncTask().execute(ip);
+                } else {
+                    Log.d("socket", String.valueOf(socket.isConnected()));
+                }
+                send(log_trial.assemby_send_string());
+            }
+
             if(selectedSemantic==0){
             if (semantic == 0){
                 temp_stateid -= 1;
@@ -1242,7 +1287,7 @@ public class MainActivity extends FragmentActivity
             if (inputs[0] > -1 && inputs[1] > -1) {
                 Log.d("manudata",Integer.toString(inputs[0])+Integer.toString(inputs[1]));
 //                Log.d("current_session", String.valueOf(random_session.get(session)));
-                if(random_session.get(session)==0)
+                if(random_session.get(session)==0 && session<2)
                     setupfunctionview(task, inputs[0], inputs[1], SLIDER_VALUE);
                 /**Study 2 Session 2*/
                 else{

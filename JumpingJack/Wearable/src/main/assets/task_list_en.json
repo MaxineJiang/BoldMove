@@ -1,0 +1,34 @@
+{
+    "functions_study2_scenario1":[
+        {"id":"0", "function": "redial", "device": ["phone"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"1", "function": "decrease volume", "device": ["phone"], "semantic": ["",""], "state": [""],"state0": "0", "image": " "},
+        {"id":"2", "function": "unmute microphone", "device": ["phone"], "semantic": [""], "state": [""],"state0": "0", "image": " "},
+        {"id":"3", "function": "increase volume", "device": ["laptop"], "semantic": [""], "state": ["",""], "state0": "0","image": " "},
+        {"id":"4", "function": "previous page", "device": ["laptop"], "semantic": [""], "state": ["", ""],"state0": "0", "image": " "},
+        {"id":"5", "function": "next page", "device": ["laptop"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"6", "function": "mute speaker", "device": ["laptop"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"7", "function": "hang up", "device": ["phone"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "}
+    ],
+    "functions_study2_scenario2":[
+        {"id":"0", "function": "previous episode", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"1", "function": "power off", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"2", "function": "power on", "device": ["lamp"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"3", "function": "increase lightness", "device": ["lamp"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"4", "function": "play", "device": ["speaker"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"5", "function": "next song", "device": ["speaker"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"6", "function": "decrease volume", "device": ["speaker"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"7", "function": "power off", "device": ["lamp"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "}
+
+    ],
+    "functions_study2_scenario3":[
+
+        {"id":"0", "function": "power on", "device": ["light"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"1", "function": "close", "device": ["curtain"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"2", "function": "next fan speed", "device": ["air purifier"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"3", "function": "previous fan speed", "device": ["AC"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"4", "function": "open", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"5", "function": "increase volume", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"6", "function": "decrease lightness", "device": ["light"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"7", "function": "close", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "}
+    ]
+}

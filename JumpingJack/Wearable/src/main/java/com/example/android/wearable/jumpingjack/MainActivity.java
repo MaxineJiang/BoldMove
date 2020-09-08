@@ -246,8 +246,8 @@ public class MainActivity extends FragmentActivity
         target_function_senario2=new int[]{1,0,3,5,6,7,8,3};
         target_function_senario3=new int[]{0,2,9,7,4,5,1,4};
 
-        correct_sound_player = MediaPlayer.create(context, R.raw.correct);
-        wrong_sound_player = MediaPlayer.create(context, R.raw.wrong);
+//        correct_sound_player = MediaPlayer.create(context, R.raw.correct);
+//        wrong_sound_player = MediaPlayer.create(context, R.raw.wrong);
 
         handler= new Handler();
         final BluetoothManager bluetoothManager =
@@ -257,7 +257,7 @@ public class MainActivity extends FragmentActivity
         if(socket == null) {
             new NetworkAsyncTask().execute(ip);
         }
-        send("New Experiment\n");
+//        send("New Experiment\n");
         setupstartview(block);
 
         Log.e("speaker", Boolean.toString(checkspeaker()));
@@ -285,9 +285,9 @@ public class MainActivity extends FragmentActivity
     protected void onResume() {
         super.onResume();
         Log.i("resume", "resume");
-        if (socket == null){
-            new NetworkAsyncTask().execute(ip);
-        }
+//        if (socket == null){
+//            new NetworkAsyncTask().execute(ip);
+//        }
         // Ensures Bluetooth is available on the device and it is enabled. If not,
         // displays a dialog requesting user permission to enable Bluetooth.
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
@@ -373,24 +373,28 @@ public class MainActivity extends FragmentActivity
         }
         else{
             session_textview.setText("Experiment Finished");
-            send("Experiment Finished!\n");
+//            send("Experiment Finished!\n");
             disconnect();
         }
+//
+//        if (socket == null){
+//            new NetworkAsyncTask().execute(ip);
+//        }
 
-        if (socket == null){
-            new NetworkAsyncTask().execute(ip);
-        }
-        send("Session: "+random_session.toString());
-        send("Block: "+random_block.toString());
+
+
 
         Button start_button = findViewById(R.id.button_start);
         start_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int cnt = 10;
+
                 if (socket == null){
                     new NetworkAsyncTask().execute(ip);
                 }
+
+                send("Session: " + random_session.toString()+"; Block: " + random_block.toString()+"\n");
+
                 device_states = new int[all_functions.size()];
                 // reinitialize states of all devices
                 for (function f:all_functions
@@ -413,9 +417,9 @@ public class MainActivity extends FragmentActivity
 
         //Collections.shuffle(randomBlocks_StudyOne);
         View func_view = findViewById(R.id.block_view);
-        func_view.setOnLongClickListener(new View.OnLongClickListener() {
+        func_view.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
+            public void onClick(View v) {
                 log_trial = new log_data();
 //                task=previous_task;
 //                block=previous_block;
@@ -439,9 +443,9 @@ public class MainActivity extends FragmentActivity
                 }
                 device_states[current_function.get_id()]=current_function.get_initstateid();
                 setupTrialview(block,task,-1,-1);
-                return true;
             }
         });
+
     }
 
     private void setupTrialview(int block_num, int task_num,int semantic, int pressed){
@@ -456,7 +460,9 @@ public class MainActivity extends FragmentActivity
 
         block_textview.setText(blocktext);
         task_textview.setText(tasktext);
-        task_name_textview.setText(all_tasks.get(task).get_device()[0]+" "+all_tasks.get(task).get_name());
+//        task_name_textview.setText(all_tasks.get(task).get_device()[0]+" "+all_tasks.get(task).get_name());
+        task_name_textview.setText(all_tasks.get(task).get_name());
+
 
         /**Study 2*/
        /* if(session==0)
@@ -478,9 +484,9 @@ public class MainActivity extends FragmentActivity
         }*/
 
         View func_view = findViewById(R.id.task_view);
-        func_view.setOnLongClickListener(new View.OnLongClickListener() {
+        func_view.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
+            public void onClick(View v) {
                 log_trial = new log_data();
 //                task=previous_task;
 //                block=previous_block;
@@ -504,9 +510,37 @@ public class MainActivity extends FragmentActivity
                     e.printStackTrace();
                 }
                 setupTrialview(block,task,-1,-1);
-                return true;
             }
         });
+//        func_view.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//                log_trial = new log_data();
+////                task=previous_task;
+////                block=previous_block;
+////                session=previous_session;
+//                if(task>0)
+//                    task--;
+//                else if(block>0){
+//                    block--;
+//                    task=7;
+//                }else if(session>0){
+//                    session--;
+//                    block=2;
+//                    task=7;
+//                }
+//
+//                try {
+//                    all_functions = assembly_functions("functions_study.json",2, 0, random_block.get(block),0);
+//                    all_tasks=assembly_functions("task_list.json",2, 0, random_block.get(block), 0);
+//                    device_states[current_function.get_id()]=current_function.get_initstateid();
+//                } catch (IOException | JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                setupTrialview(block,task,-1,-1);
+//                return true;
+//            }
+//        });
 
         if(random_session.get(session)==1){
        if((semantic==0||semantic==1)&&pressed==1)
@@ -622,10 +656,10 @@ public class MainActivity extends FragmentActivity
             stopfunction = true;
             // deal with state display
             final int functionid = current_function.get_id();
-            if(functionid==target_functions[task_num])
-                correct_sound_player.start();
-            else
-                wrong_sound_player.start();
+//            if(functionid==target_functions[task_num])
+//                correct_sound_player.start();
+//            else
+//                wrong_sound_player.start();
 
             int temp_stateid = device_states[functionid];
             if (semantic == 0){
@@ -667,12 +701,12 @@ public class MainActivity extends FragmentActivity
             log_trial.session = random_session.get(session);
             log_trial.block = block;
             log_trial.trial = task;
-            if (socket == null){
-                new NetworkAsyncTask().execute(ip);
-            }
-            else{
-                Log.d("socket", String.valueOf(socket.isConnected()));
-            }
+//            if (socket == null){
+//                new NetworkAsyncTask().execute(ip);
+//            }
+//            else{
+//                Log.d("socket", String.valueOf(socket.isConnected()));
+//            }
             send(log_trial.assemby_send_string());
 
             scrollTimer = new Timer();
@@ -751,11 +785,11 @@ public class MainActivity extends FragmentActivity
                     log_trial.session = session;
                     log_trial.block = block;
                     log_trial.trial = task;
-                    if (socket == null) {
-                        new NetworkAsyncTask().execute(ip);
-                    } else {
-                        Log.d("socket", String.valueOf(socket.isConnected()));
-                    }
+//                    if (socket == null) {
+//                        new NetworkAsyncTask().execute(ip);
+//                    } else {
+//                        Log.d("socket", String.valueOf(socket.isConnected()));
+//                    }
                     send(log_trial.assemby_send_string());
                 }
             }
@@ -817,11 +851,11 @@ public class MainActivity extends FragmentActivity
                 log_trial.block = block;
                 log_trial.trial = task;
 
-                if (socket == null) {
-                    new NetworkAsyncTask().execute(ip);
-                } else {
-                    Log.d("socket", String.valueOf(socket.isConnected()));
-                }
+//                if (socket == null) {
+//                    new NetworkAsyncTask().execute(ip);
+//                } else {
+//                    Log.d("socket", String.valueOf(socket.isConnected()));
+//                }
                 send(log_trial.assemby_send_string());
             }
             setContentView(view_func_select);
@@ -832,26 +866,12 @@ public class MainActivity extends FragmentActivity
 
             final int functionid = current_function.get_id();
 
-            if(functionid==target_functions[task])
-                correct_sound_player.start();
-            else
-                wrong_sound_player.start();
+//            if(functionid==target_functions[task])
+//                correct_sound_player.start();
+//            else
+//                wrong_sound_player.start();
             int temp_stateid = device_states[functionid];
 
-            if (semantic != 3 && semantic == selectedSemantic) {
-                log_trial.funcid_target = target_functions[task];
-                log_trial.timestamp_selected = System.currentTimeMillis();
-                log_trial.session = session;
-                log_trial.block = block;
-                log_trial.trial = task;
-
-                if (socket == null) {
-                    new NetworkAsyncTask().execute(ip);
-                } else {
-                    Log.d("socket", String.valueOf(socket.isConnected()));
-                }
-                send(log_trial.assemby_send_string());
-            }
 
             if(selectedSemantic==0){
             if (semantic == 0){
@@ -882,11 +902,35 @@ public class MainActivity extends FragmentActivity
                 toggle.setChecked(temp_stateid == 0);
                 TextView state_text = findViewById(R.id.state_text2);
                 state_text.setText(current_function.get_state()[temp_stateid]);
+                log_trial.funcid_target = target_functions[task];
+                log_trial.timestamp_selected = System.currentTimeMillis();
+                log_trial.session = session;
+                log_trial.block = block;
+                log_trial.trial = task;
+
+//                if (socket == null) {
+//                    new NetworkAsyncTask().execute(ip);
+//                } else {
+//                    Log.d("socket", String.valueOf(socket.isConnected()));
+//                }
+                send(log_trial.assemby_send_string());
             }
 
             if ((semantic == 0 || semantic == 1)&&selectedSemantic==0 ){
                 TextView state_text = findViewById(R.id.state_text1);
                 state_text.setText(current_function.get_state()[temp_stateid]);
+                log_trial.funcid_target = target_functions[task];
+                log_trial.timestamp_selected = System.currentTimeMillis();
+                log_trial.session = session;
+                log_trial.block = block;
+                log_trial.trial = task;
+
+//                if (socket == null) {
+//                    new NetworkAsyncTask().execute(ip);
+//                } else {
+//                    Log.d("socket", String.valueOf(socket.isConnected()));
+//                }
+                send(log_trial.assemby_send_string());
             }
 
             if (semantic == 3 && selectedSemantic==3){
@@ -1692,7 +1736,7 @@ public class MainActivity extends FragmentActivity
                 socket = new Socket(params[0], PORT);
                 //reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-                Thread.sleep(300);
+                Thread.sleep(800);
                 writer.print("Client Send!");
                 writer.flush();
                 listening = false;

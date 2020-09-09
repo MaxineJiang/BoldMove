@@ -1,34 +1,34 @@
 {
     "functions_study2_scenario1":[
-        {"id":"0", "function": "电话重拨", "device": ["phone"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"1", "function": "电话减小音量", "device": ["phone"], "semantic": ["",""], "state": [""],"state0": "0", "image": " "},
-        {"id":"2", "function": "电话取消静音", "device": ["phone"], "semantic": [""], "state": [""],"state0": "0", "image": " "},
-        {"id":"3", "function": "笔记本增大音量", "device": ["laptop"], "semantic": [""], "state": ["",""], "state0": "0","image": " "},
-        {"id":"4", "function": "笔记本上一页PPT", "device": ["laptop"], "semantic": [""], "state": ["", ""],"state0": "0", "image": " "},
-        {"id":"5", "function": "笔记本下一页PPT", "device": ["laptop"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"6", "function": "笔记本静音", "device": ["laptop"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"7", "function": "电话挂断", "device": ["phone"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "}
+        {"id":"0", "function": "Phone 重拨", "device": ["phone"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"1", "function": "Phone 减小音量", "device": ["phone"], "semantic": ["",""], "state": [""],"state0": "0", "image": " "},
+        {"id":"2", "function": "Phone 取消静音", "device": ["phone"], "semantic": [""], "state": [""],"state0": "0", "image": " "},
+        {"id":"3", "function": "Laptop 增大音量", "device": ["laptop"], "semantic": [""], "state": ["",""], "state0": "0","image": " "},
+        {"id":"4", "function": "Laptop 上一页PPT", "device": ["laptop"], "semantic": [""], "state": ["", ""],"state0": "0", "image": " "},
+        {"id":"5", "function": "Laptop 下一页PPT", "device": ["laptop"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"6", "function": "Laptop 静音", "device": ["laptop"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"7", "function": "Phone 挂断", "device": ["phone"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "}
     ],
     
     "functions_study2_scenario2":[
-        {"id":"0", "function": "电视上一集剧集", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"1", "function": "电视关闭", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"2", "function": "台灯打开", "device": ["lamp"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"3", "function": "电视调大音量", "device": ["lamp"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"4", "function": "音箱开始播放音乐", "device": ["speaker"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"5", "function": "音箱下一首歌曲", "device": ["speaker"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"6", "function": "音箱调小音乐音量", "device": ["speaker"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"7", "function": "台灯关闭", "device": ["lamp"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "}
+        {"id":"0", "function": "TV 上一集剧集", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"1", "function": "TV 关闭", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"2", "function": "Lamp 打开", "device": ["lamp"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"3", "function": "Lamp 调大亮度", "device": ["lamp"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"4", "function": "Speaker 播放音乐", "device": ["speaker"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"5", "function": "Speaker 下一首歌曲", "device": ["speaker"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"6", "function": "Speaker 调小音量", "device": ["speaker"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"7", "function": "Lamp 关闭", "device": ["lamp"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "}
 
     ],
     "functions_study2_scenario3":[
-        {"id":"0", "function": "台灯打开", "device": ["light"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"1", "function": "窗帘关闭", "device": ["curtain"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"2", "function": "净化器下一档风速", "device": ["air purifier"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"3", "function": "空调上一档风速", "device": ["AC"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"4", "function": "电视打开", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"5", "function": "电视调大音量", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"6", "function": "台灯调小亮度", "device": ["light"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
-        {"id":"7", "function": "电视关闭", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "}
+        {"id":"0", "function": "Light 打开", "device": ["light"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"1", "function": "Curtain 关闭", "device": ["curtain"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"2", "function": "Air Purifier 下一档风速", "device": ["air purifier"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"3", "function": "AC 上一档风速", "device": ["AC"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"4", "function": "TV 打开", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"5", "function": "TV 调大音量", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"6", "function": "Light 调小亮度", "device": ["light"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "},
+        {"id":"7", "function": "TV 关闭", "device": ["TV"], "semantic": [""], "state": ["", ""], "state0": "0","image": " "}
     ]
 }

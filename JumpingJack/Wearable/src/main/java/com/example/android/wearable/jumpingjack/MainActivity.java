@@ -1736,7 +1736,7 @@ public class MainActivity extends FragmentActivity
                 socket = new Socket(params[0], PORT);
                 //reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-                Thread.sleep(800);
+                Thread.sleep(300);
                 writer.print("Client Send!");
                 writer.flush();
                 listening = false;

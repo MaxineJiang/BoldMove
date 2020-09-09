@@ -1,0 +1,55 @@
+{
+    "functions_study1":[
+        {"id":"0", "function": "power", "device": ["TV"], "semantic": ["toggle"], "state": ["ON", "OFF"], "state0":"0", "image": "power"},
+        {"id":"1", "function": "channel", "device": ["TV"], "semantic": ["previous", "next"], "state": ["CH1", "CH2", "CH3", "CH4", "CH5"], "state0":"0", "image": "channel"},
+        {"id":"2", "function": "volume", "device": ["TV"], "semantic": ["adjust"], "state": ["0-30"], "state0":"0", "image": "volume"},
+        {"id":"3", "function": "lights", "device": ["All Lights"], "semantic": ["toggle"], "state": ["ON","OFF"], "state0":"0", "image": "curtain"},
+        {"id":"4", "function": "power", "device": ["AC"], "semantic": ["toggle"], "state": ["ON","OFF"], "state0":"0", "image": "AC"},
+        {"id":"5", "function": "fan", "device": ["AC"], "semantic": ["previous","next"], "state": ["LOW", "MEDIUM", "HIGH"], "state0":"0", "image": "AC"},
+        {"id":"6", "function": "temperature", "device": ["AC"], "semantic": ["adjust"], "state": ["15-30"], "state0":"0", "image": "AC"},
+        {"id":"7", "function": "play", "device": ["Speaker"], "semantic": ["toggle"], "state": ["PLAYING","PAUSED"], "state0":"0", "image": "Speaker"},
+        {"id":"8", "function": "song", "device": ["Speaker"], "semantic": ["previous","next"], "state": ["Beat It", "We Are The World", "Billie Jean"], "state0":"0", "image": "Speaker"},
+        {"id":"9", "function": "volume", "device": ["Speaker"], "semantic": ["adjust"], "state": ["0-30"], "state0":"0", "image": "Speaker"},
+        {"id":"10", "function": "mute", "device": ["Laptop"], "semantic": ["toggle"], "state": ["MUTED", "UNMUTED"], "state0":"0", "image": "Laptop"},
+        {"id":"11", "function": "page", "device": ["Laptop"], "semantic": ["previous","next"], "state": ["1-20"], "state0":"0", "image": "Laptop"},
+        {"id":"12", "function": "display", "device": ["Laptop"], "semantic": ["previous","next"], "state": ["Monitor1","Monitor2"], "state0":"0", "image": "Laptop"},
+        {"id":"13", "function": "volume", "device": ["Laptop"], "semantic": ["adjust"], "state": ["0-30"], "state0":"0", "image": "Laptop"},
+        {"id":"14", "function": "brightness", "device": ["Laptop"], "semantic": ["adjust"], "state": ["0-100"], "state0":"0", "image": "Laptop"}
+    ],
+
+    "functions_study2_scenario1":[
+        {"id":"0", "function": "power", "device": ["Laptop"], "semantic": ["toggle"], "state": ["AWAKE", "SLEEPING"], "state0":"0","image": "wake" },
+        {"id":"1", "function": "mute", "device": ["Laptop"], "semantic": ["toggle"], "state": ["MUTED", "UNMUTED"],"state0":"1", "image": "mute"},
+        {"id":"2", "function": "page", "device": ["Laptop"], "semantic": ["previous","next"], "state": ["1-20"], "state0":"10","image": " "},
+        {"id":"3", "function": "volume", "device": ["Laptop"], "semantic": ["adjust"], "state": ["0-30"],"state0":"15", "image": " "},
+        {"id":"4", "function": "brightness", "device": ["Laptop"], "semantic": ["adjust"], "state": ["0-100"], "state0":"50","image": " "},
+        {"id":"5", "function": "desktop", "device": ["Laptop"], "semantic": ["previous","next"], "state": ["DESKTOP1","DESKTOP2"], "state0":"0","image": " "},
+        {"id":"6", "function": "call", "device": ["Phone"], "semantic": ["toggle"], "state": ["SPEAKING", "HUNG UP"], "state0":"0", "image": " "},
+        {"id":"7", "function": "microphone", "device": ["Phone"], "semantic": ["toggle"], "state": ["MUTED", "UNMUTED"], "state0":"0","image": " "},
+        {"id":"8", "function": "redial", "device": ["Phone"], "semantic": ["toggle"], "state": ["DIALING"," "], "state0":"1", "image": " "},
+        {"id":"9", "function": "volume", "device": ["Phone"], "semantic": ["adjust"], "state": ["0-30"], "state0":"15","image": " "}
+    ],
+    "functions_study2_scenario2":[
+        {"id":"0", "function": "power", "device": ["TV"], "semantic": ["toggle"], "state": ["ON", "OFF"], "state0":"0", "image": " "},
+        {"id":"1", "function": "episode", "device": ["TV"], "semantic": ["previous","next"], "state": ["1-20"], "state0":"3","image": " "},
+        {"id":"2", "function": "volume", "device": ["TV"], "semantic": ["adjust"], "state": ["0-30"],"state0":"15", "image": " "},
+        {"id":"3", "function": "power", "device": ["Lamp"], "semantic": ["toggle"], "state": ["ON","OFF"], "state0":"1","image": " "},
+        {"id":"4", "function": "mode", "device": ["Lamp"], "semantic": ["previous","next"], "state": ["LOW", "MEDIUM", "HIGH"], "state0":"1","image": " "},
+        {"id":"5", "function": "brightness", "device": ["Lamp"], "semantic": ["adjust"], "state": ["0-100"], "state0":"50","image": " "},
+        {"id":"6", "function": "play", "device": ["Speaker"], "semantic": ["toggle"], "state": ["PLAYING","PAUSED"], "state0":"1","image": " "},
+        {"id":"7", "function": "song", "device": ["Speaker"], "semantic": ["previous","next"], "state": ["Beat It", "We Are The World", "Billie Jean"], "state0":"0","image": " "},
+        {"id":"8", "function": "volume", "device": ["Speaker"], "semantic": ["adjust"], "state": ["0-30"], "state0":"15","image": " "}
+    ],
+    "functions_study2_scenario3":[
+        {"id":"0", "function": "power", "device": ["Light"], "semantic": ["toggle"], "state": ["ON", "OFF"], "state0":"1","image": " "},
+        {"id":"1", "function": "brightness", "device": ["Light"], "semantic": ["adjust"], "state": ["0-100"], "state0":"50","image": " "},
+        {"id":"2", "function": "power", "device": ["Curtain"], "semantic": ["toggle"], "state": ["OPEN", "CLOSED"], "state0":"0","image": " "},
+        {"id":"3", "function": "position", "device": ["Curtain"], "semantic": ["adjust"], "state": ["0-100"], "state0":"50","image": " "},
+        {"id":"4", "function": "power", "device": ["TV"], "semantic": ["toggle"], "state": ["ON", "OFF"], "state0":"1","image": "power"},
+        {"id":"5", "function": "volume", "device": ["TV"], "semantic": ["adjust"], "state": ["0-30"], "state0":"15","image": " "},
+        {"id":"6", "function": "power", "device": ["AC"], "semantic": ["toggle"], "state": ["ON","OFF"], "state0":"0","image": "AC"},
+        {"id":"7", "function": "fan", "device": ["AC"], "semantic": ["previous","next"], "state": ["LOW", "MEDIUM", "HIGH"], "state0":"1","image": " "},
+        {"id":"8", "function": "power", "device": ["Air Purifier"], "semantic": ["toggle"], "state": ["ON", "OFF"], "state0":"0","image": " "},
+        {"id":"9", "function": "fan", "device": ["Air Purifier"], "semantic": ["previous","next"], "state": ["LOW", "MEDIUM", "HIGH"],"state0":"1", "image": " "}
+    ]
+}
